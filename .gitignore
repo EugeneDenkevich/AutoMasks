@@ -1,1 +1,3 @@
 .hints
+.local/
+__pycache__/
