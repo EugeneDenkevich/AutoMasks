@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "automask"
+version = "0.1.0"
+description = ""
+authors = ["Eugene Denkevich <eugenestudio@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pip = "^23.3.2"
+install = "^1.3.5"
+flet = "0.19.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
