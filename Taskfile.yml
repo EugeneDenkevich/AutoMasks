@@ -1,0 +1,21 @@
+version: '3'
+
+output: 'prefixed'
+
+tasks:
+  format:
+    cmds:
+      - poetry run black .
+      - poetry run isort .
+    desc: Format the code using "black" and "isort"
+  
+  run:
+    cmds:
+      - poetry run python main.py
+    desc: Run the app
+  
+  reload:
+    cmds:
+      - task: format
+      - task: run
+    desc: Format code and run the app

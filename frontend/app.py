@@ -1,6 +1,6 @@
 import flet as ft
 
-import settings
+from frontend import settings
 
 
 def main_app(page: ft.Page):

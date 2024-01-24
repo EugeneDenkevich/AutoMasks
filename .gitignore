@@ -1,3 +1,5 @@
-.hints
+.draft
 .local/
 __pycache__/
+.env
+result/
