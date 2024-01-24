@@ -20,6 +20,10 @@ def drow_masks(images, colors, _id, transparency):
         mask = Image.new(mode="RGBA", size=image_origin.size)
         draw = ImageDraw.Draw(mask)
 
+        """
+        Наладить обработку тасок
+        """
+        
         polygons = image.findall("./polygon")
         polygons = sort_by_zorder(polygons)
         for polygon in polygons:
