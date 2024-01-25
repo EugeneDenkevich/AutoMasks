@@ -19,3 +19,7 @@ tasks:
       - task: format
       - task: run
     desc: Format code and run the app
+  
+  push:
+    cmds:
+      - GIT_SSL_NO_VERIFY=true git push origin dev
