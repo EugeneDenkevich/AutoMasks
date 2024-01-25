@@ -21,7 +21,7 @@ def process_instance(_id, _type, _format, transparency):
 
     tree = ET.parse(file_xml)
     root = tree.getroot()
-    
+
     labels = root.findall(f"./meta/{_type[0:-1]}/labels//label")
     colors = _get_colors(labels)
     images = root.findall(".//image")

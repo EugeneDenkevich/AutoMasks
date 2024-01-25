@@ -23,7 +23,7 @@ def drow_masks(images, colors, _id, transparency):
         """
         Наладить обработку тасок
         """
-        
+
         polygons = image.findall("./polygon")
         polygons = sort_by_zorder(polygons)
         for polygon in polygons:
