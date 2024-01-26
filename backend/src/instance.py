@@ -1,11 +1,11 @@
 import os
 from xml.etree import ElementTree as ET
 
-from src.masks import drow_masks
-from src.queries import get_data
-from src.utils import _get_colors
-from src.utils import extract_zip
-from src.utils import filter_images
+from backend.src.masks import drow_masks
+from backend.src.queries import get_data
+from backend.src.utils import _get_colors
+from backend.src.utils import extract_zip
+from backend.src.utils import filter_images
 
 
 def process_instance(_id, _type, _format, transparency, type_element):

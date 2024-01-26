@@ -4,7 +4,7 @@ from types import NoneType
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
-from src.settings import settings
+from backend.src.settings import settings
 
 
 def extract_zip(job, archive, is_image: bool = False) -> Path:

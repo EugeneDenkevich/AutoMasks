@@ -1,9 +1,10 @@
 from typing import Literal
 
 import requests
-from src.settings import settings
 from tenacity import retry
 from tenacity import stop_after_attempt
+
+from backend.src.settings import settings
 
 session = requests.Session()
 session.auth = (settings.USERNAME, settings.PASSWORD)

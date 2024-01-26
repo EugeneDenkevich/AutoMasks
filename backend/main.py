@@ -1,7 +1,7 @@
 from typing import Literal
 
-from src.instance import process_instance
-from src.settings import settings
+from backend.src.instance import process_instance
+from backend.src.settings import settings
 
 
 class ResultPath(str):

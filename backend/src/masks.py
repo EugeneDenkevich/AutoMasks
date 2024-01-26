@@ -2,10 +2,11 @@ import os
 
 from PIL import Image
 from PIL import ImageDraw
-from src.settings import settings
-from src.utils import _get_coords
-from src.utils import hex_to_rgb
-from src.utils import sort_by_zorder
+
+from backend.src.settings import settings
+from backend.src.utils import _get_coords
+from backend.src.utils import hex_to_rgb
+from backend.src.utils import sort_by_zorder
 
 
 def drow_masks(images, colors, _id, transparency, type_element):
