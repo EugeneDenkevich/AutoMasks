@@ -9,16 +9,17 @@ def main_app(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.window_width = 400
     page.window_height = 500
-    # page.window_resizable = False
+    page.window_resizable = False
 
     txt_id_list = ft.TextField(width=300, height=50)
     choise_instance = ft.RadioGroup(
+        value="jobs",
         content=ft.Row(
             [
                 ft.Radio(label="jobs", value="jobs"),
                 ft.Radio(label="tasks", value="tasks"),
             ]
-        )
+        ),
     )
 
     slider_label = ft.Text(value=50)
@@ -43,23 +44,42 @@ def main_app(page: ft.Page):
                             padding=10,
                             border_radius=10,
                         ),
-                        ft.Text("Выберите:"),
-                        choise_instance,
+                        ft.Column(
+                            [
+                                ft.Text("Выберите:"),
+                                choise_instance,
+                            ]
+                        ),
                         ft.Text("id (через запятую):"),
                         txt_id_list,
-                        ft.Text("Прозрачность:"),
+                        ft.Text("Прозрачность маски:"),
                         slider_label,
-                        ft.Slider(
-                            value=50,
-                            min=0,
-                            max=100,
-                            on_change=slider_change,
-                            width=300,
-                            divisions=10,
+                        ft.Stack(
+                            [
+                                ft.Slider(
+                                    value=50,
+                                    min=0,
+                                    max=100,
+                                    on_change=slider_change,
+                                    width=300,
+                                    divisions=10,
+                                ),
+                                ft.Row(
+                                    [
+                                        ft.Text("Прозрачная", size=13),
+                                        ft.Text("Не прозрачная", size=13),
+                                    ],
+                                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                    width=300,
+                                ),
+                            ],
+                            height=60,
                         ),
-                    ]
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
                 )
             ],
+            width=350,
             alignment=ft.MainAxisAlignment.CENTER,
         )
     )

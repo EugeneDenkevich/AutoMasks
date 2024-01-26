@@ -8,7 +8,7 @@ from src.utils import extract_zip
 from src.utils import filter_images
 
 
-def process_instance(_id, _type, _format, transparency):
+def process_instance(_id, _type, _format, transparency, type_element):
     """
     Download and drow masks on all images in the job.
     """
@@ -25,9 +25,9 @@ def process_instance(_id, _type, _format, transparency):
     labels = root.findall(f"./meta/{_type[0:-1]}/labels//label")
     colors = _get_colors(labels)
     images = root.findall(".//image")
-    images_filtered = filter_images(images)
+    images_filtered = filter_images(images, type_element)
 
-    drow_masks(images_filtered, colors, _id, transparency)
+    drow_masks(images_filtered, colors, _id, transparency, type_element)
 
     if file_xml.exists():
         os.remove(file_xml)

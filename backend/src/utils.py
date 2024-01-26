@@ -39,13 +39,20 @@ def hex_to_rgb(hex_color):
     return rgb_color_code
 
 
-def _get_coords(polygon):
+def _get_coords(element, type_element):
     coords = []
-    row_coords = polygon.attrib.get("points").split(";")
-    for coord in row_coords:
-        x = float(coord.split(",")[0])
-        y = float(coord.split(",")[1])
-        coords.append((x, y))
+    if type_element == "polygon":
+        row_coords = element.attrib.get("points").split(";")
+        for coord in row_coords:
+            x = float(coord.split(",")[0])
+            y = float(coord.split(",")[1])
+            coords.append((x, y))
+    elif type_element == "box":
+        xtl = float(element.attrib.get("xtl"))
+        ytl = float(element.attrib.get("ytl"))
+        xbr = float(element.attrib.get("xbr"))
+        ybr = float(element.attrib.get("ybr"))
+        coords.extend([xtl, ytl, xbr, ybr])
     return coords
 
 
@@ -75,13 +82,13 @@ def sort_by_zorder(polygons: "list[ET.Element]") -> "list[ET.Element]":
     return result
 
 
-def filter_images(images) -> list[ET.Element]:
+def filter_images(images, type_element) -> list[ET.Element]:
     """
     Get only annotated images
     """
     image_list = []
     for image in images:
-        polygon = image.find("./polygon")
+        polygon = image.find(f"./{type_element}")
         if not isinstance(polygon, NoneType):
             image_list.append(image)
     return image_list
