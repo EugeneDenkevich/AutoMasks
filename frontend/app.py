@@ -12,7 +12,7 @@ def main_app(page: ft.Page):
     page.title = settings.TITLE
     page.theme_mode = "light"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.window_width = 410
+    page.window_width = 390
     page.window_height = 560
     page.window_resizable = False
     page.bgcolor = ft.colors.INDIGO_100
@@ -50,6 +50,27 @@ def main_app(page: ft.Page):
         page.update()
 
     def start(e):
+        """
+        fixme:
+
+        Сделать прогрессбар по такому шаблону:
+
+            async def button_clicked(e):
+            t.value = "Doing something..."
+            await t.update_async()
+            b.disabled = True
+            await b.update_async()
+            for i in range(0, 101):
+                pb.value = i * 0.01
+                await asyncio.sleep(0.1)
+                await pb.update_async()
+            t.value = "Click the button..."
+            await t.update_async()
+            b.disabled = False
+            await b.update_async()
+
+        Но не асинхронно.
+        """
         # backend_main(
         #     id_list=...,
         #     _type=...,
