@@ -1,5 +1,10 @@
 import os
+import sys
 from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+
 from time import sleep
 
 import flet as ft
@@ -13,10 +18,11 @@ def main_app(page: ft.Page):
     page.theme_mode = "light"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.window_width = 390
-    page.window_height = 560
+    page.window_height = 660
     page.window_resizable = False
     page.bgcolor = ft.colors.INDIGO_100
 
+    btn_size = 100
     txt_id_list = ft.TextField(width=300, height=50)
     jobs_radio = ft.Radio(label="jobs", value="jobs")
     tasks_radio = ft.Radio(label="tasks", value="tasks")
@@ -29,6 +35,8 @@ def main_app(page: ft.Page):
             ]
         ),
     )
+    
+    ready = ft.Text(value="Готово.", visible=False, color=ft.colors.GREEN)
 
     def open_folder(e):
         folder_path = Path(__file__).parent.parent / "result"
@@ -36,19 +44,7 @@ def main_app(page: ft.Page):
         if not folder_path.exists():
             os.mkdir(folder_path)
         os.startfile(folder_path)
-
-    slider_label = ft.Text(value=50)
-    folder_button = ft.ElevatedButton(
-        "Папка", width=120, disabled=True, on_click=open_folder
-    )
-    progress_bar = ft.ProgressBar(
-        width=300, color=ft.colors.BLUE_600, bgcolor="#eeeeee", visible=False
-    )
-
-    def slider_change(e):
-        slider_label.value = int(e.control.value)
-        page.update()
-
+    
     def start(e):
         """
         fixme:
@@ -71,17 +67,85 @@ def main_app(page: ft.Page):
 
         Но не асинхронно.
         """
-        # backend_main(
-        #     id_list=...,
-        #     _type=...,
-        #     transparency=...,
-        # )
+        ready.visible = False
+        page.update()
+        id_list = get_id_list(txt_id_list.value)
+        if id_list == -1:
+            txt_error.value = (
+                "Пожалуйста, введите корректные id через пробел или запятую."
+            )
+            if txt_error.visible == False:
+                txt_error.visible = True
+                page.update()
+            return
+        else:
+            if txt_error.visible == True:
+                txt_error.visible = False
+                page.update()
         progress_bar.visible = True
         page.update()
-        sleep(4)
+        try:
+            backend_main(
+                id_list=id_list,
+                _type=choise_instance.value,
+                transparency=slider.value,
+            )
+        except Exception:
+            txt_error.value = "Произошла ошибка. Обрадитесь к разработчику."
+            txt_error.visible = True
+            page.update()
+        if txt_error.visible == True:
+            txt_error.visible = False
         progress_bar.visible = False
         folder_button.disabled = False
+        ready.visible = True
         page.update()
+
+    def cancel(e):
+        pass
+
+    slider_label = ft.Text(value=50, size=18)
+    start_button = ft.ElevatedButton(
+                                        "Старт", width=btn_size, on_click=start
+                                    )
+    cancel_button = ft.ElevatedButton(
+        "Отмена", width=btn_size, on_click=cancel
+    )
+    folder_button = ft.ElevatedButton(
+        "Папка", width=btn_size, disabled=True, on_click=open_folder, 
+    )
+    progress_bar = ft.ProgressBar(
+        width=250, color=ft.colors.BLUE_600, bgcolor="#eeeeee", visible=False
+    )
+
+    def slider_change(e):
+        slider_label.value = int(e.control.value)
+        page.update()
+
+    slider = ft.Slider(
+        value=50,
+        min=0,
+        max=100,
+        on_change=slider_change,
+        width=300,
+        divisions=10,
+    )
+    txt_error = ft.Text(
+        visible=False,
+        color=ft.colors.RED,
+        width=250,
+    )
+
+    def get_id_list(txt_id_list):
+        try:
+            id_list = list(map(int, txt_id_list.split()))
+        except:
+            pass
+        try:
+            id_list = list(map(int, txt_id_list.split(",")))
+        except Exception as e:
+            return -1
+        return id_list
 
     page.add(
         ft.Row(
@@ -105,22 +169,16 @@ def main_app(page: ft.Page):
                                 [
                                     ft.Text("Выберите:"),
                                     choise_instance,
-                                ]
+                                ],
                             ),
-                            ft.Text("id (через запятую):"),
-                            txt_id_list,
+                            ft.Text("id (через пробел или запятую):"),
+                            ft.Row([txt_id_list], alignment=ft.MainAxisAlignment.CENTER),
+                            txt_error,
                             ft.Text("Прозрачность маски:"),
-                            slider_label,
+                            ft.Row([slider_label], alignment=ft.MainAxisAlignment.CENTER),
                             ft.Stack(
                                 [
-                                    ft.Slider(
-                                        value=50,
-                                        min=0,
-                                        max=100,
-                                        on_change=slider_change,
-                                        width=300,
-                                        divisions=10,
-                                    ),
+                                    slider,
                                     ft.Row(
                                         [
                                             ft.Text("Прозрачная", size=13),
@@ -134,23 +192,31 @@ def main_app(page: ft.Page):
                             ),
                             ft.Row(
                                 [
-                                    ft.ElevatedButton(
-                                        "Старт", width=120, on_click=start
-                                    ),
+                                    start_button,
+                                    cancel_button,
                                     folder_button,
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                                width=300,
+                                width=320,
                             ),
-                            progress_bar,
+                            ft.Column(
+                                [
+                                    ft.Row([progress_bar], alignment=ft.MainAxisAlignment.CENTER),
+                                    ft.Row([ready], alignment=ft.MainAxisAlignment.CENTER)
+                                ],
+                            ),
                         ],
                     ),
                     bgcolor=ft.colors.GREY_100,
                     padding=15,
+                    width=350,
                     border_radius=20,
-                    # height=700,
                 ),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
         ),
     )
+
+
+if __name__ == "__main__":
+    ft.app(target=main_app)

@@ -1,8 +1,10 @@
 import os
+import shutil
 from xml.etree import ElementTree as ET
 
 from backend.src.masks import drow_masks
 from backend.src.queries import get_data
+from backend.src.settings import settings
 from backend.src.utils import _get_colors
 from backend.src.utils import extract_zip
 from backend.src.utils import filter_images
@@ -12,6 +14,9 @@ def process_instance(_id, _type, _format, transparency, type_element):
     """
     Download and drow masks on all images in the job.
     """
+    instance_path = settings.RESULT_PATH / str(_id)
+    if instance_path.exists():
+        shutil.rmtree(instance_path)
     transparency = int(2.55 * transparency)
     images_zip, annotations_zip = get_data(_type, _id, _format)
     image_path = extract_zip(_id, images_zip, is_image=True)
