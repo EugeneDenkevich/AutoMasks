@@ -4,13 +4,11 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-
-from time import sleep
-
 import flet as ft
 
 from backend.main import main as backend_main
 from frontend import settings
+from utils.main_process import main_process
 
 
 def main_app(page: ft.Page):
@@ -19,10 +17,9 @@ def main_app(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.window_width = 390
     page.window_height = 660
-    page.window_resizable = False
     page.bgcolor = ft.colors.INDIGO_100
 
-    btn_size = 100
+    btn_size = 110
     txt_id_list = ft.TextField(width=300, height=50)
     jobs_radio = ft.Radio(label="jobs", value="jobs")
     tasks_radio = ft.Radio(label="tasks", value="tasks")
@@ -35,8 +32,8 @@ def main_app(page: ft.Page):
             ]
         ),
     )
-    
-    ready = ft.Text(value="Готово.", visible=False, color=ft.colors.GREEN)
+
+    help_text = ft.Text(value="Готово.", visible=False, color=ft.colors.GREEN)
 
     def open_folder(e):
         folder_path = Path(__file__).parent.parent / "result"
@@ -44,7 +41,16 @@ def main_app(page: ft.Page):
         if not folder_path.exists():
             os.mkdir(folder_path)
         os.startfile(folder_path)
-    
+
+    def show_help_text(_type: str) -> None:
+        if _type == "canceled":
+            help_text.value = "Отменено"
+            help_text.color = ft.colors.RED
+        elif _type == "ready":
+            help_text.value = "Готово"
+            help_text.color = ft.colors.GREEN
+        help_text.visible = True
+
     def start(e):
         """
         fixme:
@@ -67,7 +73,8 @@ def main_app(page: ft.Page):
 
         Но не асинхронно.
         """
-        ready.visible = False
+        main_process.over = False
+        help_text.visible = False
         page.update()
         id_list = get_id_list(txt_id_list.value)
         if id_list == -1:
@@ -98,21 +105,23 @@ def main_app(page: ft.Page):
             txt_error.visible = False
         progress_bar.visible = False
         folder_button.disabled = False
-        ready.visible = True
+        show_help_text("ready")
         page.update()
 
     def cancel(e):
-        pass
+        main_process.over = True
+        show_help_text("canceled")
 
     slider_label = ft.Text(value=50, size=18)
-    start_button = ft.ElevatedButton(
-                                        "Старт", width=btn_size, on_click=start
-                                    )
+    start_button = ft.ElevatedButton("Старт", width=btn_size, on_click=start)
     cancel_button = ft.ElevatedButton(
         "Отмена", width=btn_size, on_click=cancel
     )
     folder_button = ft.ElevatedButton(
-        "Папка", width=btn_size, disabled=True, on_click=open_folder, 
+        "Папка",
+        width=btn_size,
+        disabled=True,
+        on_click=open_folder,
     )
     progress_bar = ft.ProgressBar(
         width=250, color=ft.colors.BLUE_600, bgcolor="#eeeeee", visible=False
@@ -127,7 +136,7 @@ def main_app(page: ft.Page):
         min=0,
         max=100,
         on_change=slider_change,
-        width=300,
+        width=350,
         divisions=10,
     )
     txt_error = ft.Text(
@@ -172,44 +181,74 @@ def main_app(page: ft.Page):
                                 ],
                             ),
                             ft.Text("id (через пробел или запятую):"),
-                            ft.Row([txt_id_list], alignment=ft.MainAxisAlignment.CENTER),
+                            ft.Row(
+                                [txt_id_list],
+                                alignment=ft.MainAxisAlignment.CENTER,
+                            ),
                             txt_error,
                             ft.Text("Прозрачность маски:"),
-                            ft.Row([slider_label], alignment=ft.MainAxisAlignment.CENTER),
+                            ft.Row(
+                                [slider_label],
+                                alignment=ft.MainAxisAlignment.CENTER,
+                            ),
                             ft.Stack(
                                 [
-                                    slider,
+                                    ft.Row(
+                                        [slider],
+                                        alignment=ft.MainAxisAlignment.CENTER,
+                                    ),
                                     ft.Row(
                                         [
-                                            ft.Text("Прозрачная", size=13),
-                                            ft.Text("Не прозрачная", size=13),
+                                            ft.Row(
+                                                [
+                                                    ft.Text(
+                                                        "Прозрачная", size=13
+                                                    ),
+                                                    ft.Text(
+                                                        "Не прозрачная",
+                                                        size=13,
+                                                    ),
+                                                ],
+                                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                                width=320,
+                                            )
                                         ],
-                                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                                        width=300,
+                                        alignment=ft.MainAxisAlignment.CENTER,
                                     ),
                                 ],
                                 height=60,
                             ),
                             ft.Row(
                                 [
-                                    start_button,
-                                    cancel_button,
-                                    folder_button,
+                                    ft.Row(
+                                        [
+                                            start_button,
+                                            cancel_button,
+                                            folder_button,
+                                        ],
+                                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                        width=340,
+                                    )
                                 ],
-                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                                width=320,
+                                alignment=ft.MainAxisAlignment.CENTER,
                             ),
                             ft.Column(
                                 [
-                                    ft.Row([progress_bar], alignment=ft.MainAxisAlignment.CENTER),
-                                    ft.Row([ready], alignment=ft.MainAxisAlignment.CENTER)
+                                    ft.Row(
+                                        [progress_bar],
+                                        alignment=ft.MainAxisAlignment.CENTER,
+                                    ),
+                                    ft.Row(
+                                        [help_text],
+                                        alignment=ft.MainAxisAlignment.CENTER,
+                                    ),
                                 ],
                             ),
                         ],
                     ),
                     bgcolor=ft.colors.GREY_100,
                     padding=15,
-                    width=350,
+                    width=370,
                     border_radius=20,
                 ),
             ],

@@ -2,6 +2,8 @@ from typing import Literal
 
 from backend.src.instance import process_instance
 from backend.src.settings import settings
+from utils.main_process import main_process
+from utils.main_process import process_end
 
 
 class ResultPath(str):
@@ -29,8 +31,11 @@ def main(
 
     _format = _format.replace(" ", "%20")
     for _id in id_list:
-        process_instance(_id, _type, _format, transparency, type_element)
-
+        if not main_process.over:
+            process_instance(_id, _type, _format, transparency, type_element)
+        else:
+            process_end()
+            return
     result_path = ResultPath(settings.RESULT_PATH)
 
     return result_path
