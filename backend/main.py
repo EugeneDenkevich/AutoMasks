@@ -1,6 +1,7 @@
 from typing import Literal
 
 from backend.src.instance import process_instance
+from backend.src.session import session
 from backend.src.settings import settings
 from utils.main_process import main_process
 from utils.main_process import process_end
@@ -16,6 +17,8 @@ def main(
     _format: str = "CVAT for images 1.1",
     transparency: int = 100,
     type_element: Literal["polygon", "box"] = "polygon",
+    login: str = "",
+    password: str = "",
 ) -> ResultPath:
     """
     Main function.\n
@@ -26,13 +29,23 @@ def main(
     Return
     - ResultPath: path to result directory with porcessed images.
     """
+    if not login or not password:
+        # fixme #4
+        pass
     if not settings.RESULT_PATH.exists():
         settings.RESULT_PATH.mkdir()
 
+    session.auth = (login, password)
     _format = _format.replace(" ", "%20")
     for _id in id_list:
         if not main_process.over:
-            process_instance(_id, _type, _format, transparency, type_element)
+            process_instance(
+                _id,
+                _type,
+                _format,
+                transparency,
+                type_element,
+            )
         else:
             process_end()
             return
@@ -41,9 +54,8 @@ def main(
     return result_path
 
 
-"""
-Фиксми:
-1. Ругается, если в папке result уже есть такие же файлы. Найти где это происходит и сделать перезаписывание этих файлов.
-2. Сделать имена итоговых изображений так, как они называются в папке.
-3. Сейчас требуется введение либо полигонов, либо боксов: сделать авто-определение.
-"""
+# fixme #5
+# Сделать имена итоговых изображений так, как они называются в папке.
+
+# fixme #6
+# Сейчас требуется введение либо полигонов, либо боксов: сделать авто-определение.

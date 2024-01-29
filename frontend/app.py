@@ -1,5 +1,6 @@
 import os
 import sys
+import webbrowser as wb
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
@@ -9,6 +10,7 @@ import flet as ft
 from backend.main import main as backend_main
 from frontend import settings
 from utils.main_process import main_process
+from utils.misc import open_depends_os
 
 
 def main_app(page: ft.Page):
@@ -20,7 +22,6 @@ def main_app(page: ft.Page):
     page.bgcolor = ft.colors.INDIGO_100
 
     btn_size = 110
-    txt_id_list = ft.TextField(width=300, height=50)
     jobs_radio = ft.Radio(label="jobs", value="jobs")
     tasks_radio = ft.Radio(label="tasks", value="tasks")
     choise_instance = ft.RadioGroup(
@@ -32,15 +33,22 @@ def main_app(page: ft.Page):
             ]
         ),
     )
-
+    login_text = ft.TextField(label="Логин", width=300)
+    login = ft.Row([login_text], alignment=ft.MainAxisAlignment.CENTER)
+    password_text = ft.TextField(label="Пароль", width=300)
+    password = ft.Row([password_text], alignment=ft.MainAxisAlignment.CENTER)
+    list_id_text = ft.TextField(
+        label="id (через пробел или запятую):", width=300, height=50
+    )
+    list_id = ft.Row([list_id_text], alignment=ft.MainAxisAlignment.CENTER)
     help_text = ft.Text(value="Готово.", visible=False, color=ft.colors.GREEN)
 
     def open_folder(e):
-        folder_path = Path(__file__).parent.parent / "result"
+        folder_path = (Path(__file__).parent.parent / "result").resolve()
 
         if not folder_path.exists():
             os.mkdir(folder_path)
-        os.startfile(folder_path)
+        open_depends_os(str(folder_path))
 
     def show_help_text(_type: str) -> None:
         if _type == "canceled":
@@ -52,31 +60,36 @@ def main_app(page: ft.Page):
         help_text.visible = True
 
     def start(e):
-        """
-        fixme:
+        # fixme #1:
 
-        Сделать прогрессбар по такому шаблону:
+        # Сделать прогрессбар по такому шаблону:
 
-            async def button_clicked(e):
-            t.value = "Doing something..."
-            await t.update_async()
-            b.disabled = True
-            await b.update_async()
-            for i in range(0, 101):
-                pb.value = i * 0.01
-                await asyncio.sleep(0.1)
-                await pb.update_async()
-            t.value = "Click the button..."
-            await t.update_async()
-            b.disabled = False
-            await b.update_async()
+        #     async def button_clicked(e):
+        #     t.value = "Doing something..."
+        #     await t.update_async()
+        #     b.disabled = True
+        #     await b.update_async()
+        #     for i in range(0, 101):
+        #         pb.value = i * 0.01
+        #         await asyncio.sleep(0.1)
+        #         await pb.update_async()
+        #     t.value = "Click the button..."
+        #     await t.update_async()
+        #     b.disabled = False
+        #     await b.update_async()
 
-        Но не асинхронно.
-        """
+        # Но не асинхронно.
+
         main_process.over = False
         help_text.visible = False
         page.update()
-        id_list = get_id_list(txt_id_list.value)
+        id_list = get_id_list(list_id_text.value)
+        if login_text.value == "":
+            # fixme #2
+            pass
+        if password_text.value == "":
+            # fixme #3
+            pass
         if id_list == -1:
             txt_error.value = (
                 "Пожалуйста, введите корректные id через пробел или запятую."
@@ -96,11 +109,16 @@ def main_app(page: ft.Page):
                 id_list=id_list,
                 _type=choise_instance.value,
                 transparency=slider.value,
+                login=login_text.value,
+                password=password_text.value,
             )
-        except Exception:
+        except Exception as e:
+            progress_bar.visible = False
             txt_error.value = "Произошла ошибка. Обрадитесь к разработчику."
             txt_error.visible = True
             page.update()
+            print("ERROR: ", e)
+            return
         if txt_error.visible == True:
             txt_error.visible = False
         progress_bar.visible = False
@@ -148,13 +166,14 @@ def main_app(page: ft.Page):
     def get_id_list(txt_id_list):
         try:
             id_list = list(map(int, txt_id_list.split()))
+            return id_list
         except:
             pass
         try:
             id_list = list(map(int, txt_id_list.split(",")))
+            return id_list
         except Exception as e:
             return -1
-        return id_list
 
     page.add(
         ft.Row(
@@ -174,17 +193,15 @@ def main_app(page: ft.Page):
                                 padding=10,
                                 border_radius=10,
                             ),
+                            login,
+                            password,
                             ft.Column(
                                 [
                                     ft.Text("Выберите:"),
                                     choise_instance,
                                 ],
                             ),
-                            ft.Text("id (через пробел или запятую):"),
-                            ft.Row(
-                                [txt_id_list],
-                                alignment=ft.MainAxisAlignment.CENTER,
-                            ),
+                            list_id,
                             txt_error,
                             ft.Text("Прозрачность маски:"),
                             ft.Row(

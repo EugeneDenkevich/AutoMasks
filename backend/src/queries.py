@@ -1,13 +1,10 @@
 from typing import Literal
 
-import requests
 from tenacity import retry
 from tenacity import stop_after_attempt
 
+from backend.src.session import session
 from backend.src.settings import settings
-
-session = requests.Session()
-session.auth = (settings.USERNAME, settings.PASSWORD)
 
 
 @retry(stop=stop_after_attempt(10))
