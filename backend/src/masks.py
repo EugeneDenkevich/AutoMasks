@@ -22,24 +22,35 @@ def drow_masks(images, colors, _id, transparency, type_element):
 
             image_origin = Image.open(image_path).convert("RGBA")
             mask = Image.new(mode="RGBA", size=image_origin.size)
-            draw = ImageDraw.Draw(mask)
+            mask_draw = ImageDraw.Draw(mask)
 
-            elements = image.findall(f"./{type_element}")
-            elements = sort_by_zorder(elements)
+            polygons = sort_by_zorder(image.findall(f"./polygon"))
+            boxes = sort_by_zorder(image.findall(f"./box"))
+
         else:
             process_end()
             return
-        for element in elements:
+
+        for polygon in polygons:
             if not main_process.over:
-                coords = _get_coords(element, type_element)
-                label = element.attrib.get("label")
+                coords = _get_coords(polygon, "polygon")
+                label = polygon.attrib.get("label")
                 hex_color = colors[label]
                 rgb_color = hex_to_rgb(hex_color)
                 rgb_color.append(transparency)
-                if type_element == "polygon":
-                    draw.polygon(coords, fill=tuple(rgb_color))
-                elif type_element == "box":
-                    draw.rectangle(coords, fill=tuple(rgb_color))
+                mask_draw.polygon(coords, fill=tuple(rgb_color))
+            else:
+                process_end()
+                return
+
+        for box in boxes:
+            if not main_process.over:
+                coords = _get_coords(box, "box")
+                label = box.attrib.get("label")
+                hex_color = colors[label]
+                rgb_color = hex_to_rgb(hex_color)
+                rgb_color.append(transparency)
+                mask_draw.rectangle(coords, fill=tuple(rgb_color))
             else:
                 process_end()
                 return
@@ -47,6 +58,7 @@ def drow_masks(images, colors, _id, transparency, type_element):
         image_res_file = image_path.parent / f"{image_id}.png"
         res_image = Image.alpha_composite(image_origin, mask)
         res_image.save(image_res_file)
+
         if image_path.exists():
             try:
                 os.remove(image_path)

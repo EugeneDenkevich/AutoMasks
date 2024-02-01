@@ -68,17 +68,19 @@ def _get_colors(labels) -> dict:
     return colors
 
 
-def sort_by_zorder(polygons: "list[ET.Element]") -> "list[ET.Element]":
+def sort_by_zorder(elements: "list[ET.Element]") -> "list[ET.Element]":
+    if len(elements) == 0:
+        return []
     z_orders = []
-    for polygon in polygons:
-        z_order = polygon.attrib.get("z_order")
+    for element in elements:
+        z_order = element.attrib.get("z_order")
         z_orders.append(z_order)
     sorted_z_order = sorted(set(z_orders), key=int)
     result: "list[ET.Element]" = []
     for order in sorted_z_order:
-        for polygon in polygons:
-            if polygon.attrib.get("z_order") == order:
-                result.append(polygon)
+        for element in elements:
+            if element.attrib.get("z_order") == order:
+                result.append(element)
     return result
 
 

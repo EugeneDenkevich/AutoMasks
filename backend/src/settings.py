@@ -9,7 +9,8 @@ load_dotenv()
 
 @dataclass
 class Settings:
-    API_URL = os.getenv("API_URL")
+    API_URL = "https://cvat2.trainingdata.solutions/api"
+    # API_URL = os.getenv("API_URL")
     USERNAME = os.getenv("USER-NAME")
     PASSWORD = os.getenv("PASS-WORD")
     RESULT_PATH = (

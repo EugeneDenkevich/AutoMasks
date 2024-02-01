@@ -113,6 +113,8 @@ def main_app(page: ft.Page):
                 password=password_text.value,
             )
         except Exception as e:
+            # fixme #7
+            # Сделать лог ошибок
             progress_bar.visible = False
             txt_error.value = "Произошла ошибка. Обрадитесь к разработчику."
             txt_error.visible = True
@@ -240,7 +242,7 @@ def main_app(page: ft.Page):
                                     ft.Row(
                                         [
                                             start_button,
-                                            cancel_button,
+                                            cancel_button,  # fixme Добавить текст: "Отмена операции, подождите..."
                                             folder_button,
                                         ],
                                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
