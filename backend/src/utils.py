@@ -94,3 +94,21 @@ def filter_images(images, type_element) -> list[ET.Element]:
         if not isinstance(polygon, NoneType):
             image_list.append(image)
     return image_list
+
+
+def rename_images(image_path, annotations_path):
+    tree = ET.parse(annotations_path / "annotations.xml")
+    images = tree.getroot().findall(".//image")
+    
+    for image in images:
+        image_name = image.attrib.get("name").split("/")[-1]
+        image_id = image.attrib.get("id")
+        """
+        Продолжить: - дописывать функцию переименования всех изображений.
+                    - далее протестировать, как это работает (падало именно из-за того, что не могло найти файл изображения)
+                    - затем посмотреть, обрабатываются ли таски (сделать, чтобы обрабатывались)
+                    - протестить таски из проекта Мартина (тестовый проект)        
+        """
+        src = ...
+        dst = ...
+        os.rename(src=..., dst=...)

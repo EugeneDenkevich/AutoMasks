@@ -8,6 +8,7 @@ from backend.src.settings import settings
 from backend.src.utils import _get_colors
 from backend.src.utils import extract_zip
 from backend.src.utils import filter_images
+from backend.src.utils import rename_images
 
 
 def process_instance(_id, _type, _format, transparency, type_element):
@@ -31,6 +32,12 @@ def process_instance(_id, _type, _format, transparency, type_element):
 
     # ------------
 
+    # Переименовать изображения согласно оригинала
+
+    rename_images(image_path, annotations_path)
+
+    # ------------
+
     # Получаем все цвета в файле "annotations.xml".
 
     file_xml = annotations_path / "annotations.xml"
@@ -46,13 +53,13 @@ def process_instance(_id, _type, _format, transparency, type_element):
     # Собираем все image в файле "annotations.xml".
 
     images = root.findall(".//image")
-    images_filtered = filter_images(images, type_element)
+    # images_filtered = filter_images(images, type_element)
 
     # ------------
 
     # Рисуем маски на всех изображениях в папке results.
 
-    drow_masks(images_filtered, colors, _id, transparency, type_element)
+    drow_masks(images, colors, _id, transparency)
 
     # ------------
 

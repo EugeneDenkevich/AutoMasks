@@ -1,4 +1,5 @@
 import os
+from xml.etree.ElementTree import Element
 
 from PIL import Image
 from PIL import ImageDraw
@@ -11,14 +12,16 @@ from utils.main_process import main_process
 from utils.main_process import process_end
 
 
-def drow_masks(images, colors, _id, transparency, type_element):
+def drow_masks(images: list[Element], colors, _id, transparency):
     """
     Create masks and drow it into the images
     """
     for image in images:
+        will_draw = 0
         if not main_process.over:
+            image_name = image.attrib.get("name").split("/")[-1]
             image_id = image.attrib.get("id")
-            image_path = settings.RESULT_PATH / str(_id) / f"{image_id}.jpeg"
+            image_path = settings.RESULT_PATH / str(_id) / image_name
 
             image_origin = Image.open(image_path).convert("RGBA")
             mask = Image.new(mode="RGBA", size=image_origin.size)
@@ -32,6 +35,7 @@ def drow_masks(images, colors, _id, transparency, type_element):
             return
 
         for polygon in polygons:
+            will_draw += 1
             if not main_process.over:
                 coords = _get_coords(polygon, "polygon")
                 label = polygon.attrib.get("label")
@@ -44,6 +48,7 @@ def drow_masks(images, colors, _id, transparency, type_element):
                 return
 
         for box in boxes:
+            will_draw += 1
             if not main_process.over:
                 coords = _get_coords(box, "box")
                 label = box.attrib.get("label")
@@ -55,12 +60,15 @@ def drow_masks(images, colors, _id, transparency, type_element):
                 process_end()
                 return
 
-        image_res_file = image_path.parent / f"{image_id}.png"
-        res_image = Image.alpha_composite(image_origin, mask)
-        res_image.save(image_res_file)
+        if will_draw:
+            image_res_file = (
+                image_path.parent / f"{image_name.split('.')[0]}.png"
+            )
+            res_image = Image.alpha_composite(image_origin, mask)
+            res_image.save(image_res_file)
 
-        if image_path.exists():
-            try:
-                os.remove(image_path)
-            except:
-                print(f"deleting was failed: {image_id}")
+            if image_path.exists():
+                try:
+                    os.remove(image_path)
+                except:
+                    print(f"deleting was failed: {image_name}")

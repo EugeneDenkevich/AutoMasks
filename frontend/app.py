@@ -2,6 +2,7 @@ import os
 import sys
 import webbrowser as wb
 from pathlib import Path
+from traceback import format_exc
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -33,9 +34,11 @@ def main_app(page: ft.Page):
             ]
         ),
     )
-    login_text = ft.TextField(label="Логин", width=300)
+    login_text = ft.TextField(label="Логин", width=300, value=settings.LOGIN)
     login = ft.Row([login_text], alignment=ft.MainAxisAlignment.CENTER)
-    password_text = ft.TextField(label="Пароль", width=300)
+    password_text = ft.TextField(
+        label="Пароль", width=300, value=settings.PASSWORD
+    )
     password = ft.Row([password_text], alignment=ft.MainAxisAlignment.CENTER)
     list_id_text = ft.TextField(
         label="id (через пробел или запятую):", width=300, height=50
@@ -118,6 +121,7 @@ def main_app(page: ft.Page):
             progress_bar.visible = False
             txt_error.value = "Произошла ошибка. Обрадитесь к разработчику."
             txt_error.visible = True
+            print(format_exc(), file=open("error_log.txt", "w"))
             page.update()
             print("ERROR: ", e)
             return
