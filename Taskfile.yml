@@ -23,3 +23,7 @@ tasks:
   push:
     cmds:
       - GIT_SSL_NO_VERIFY=true git push origin dev
+
+  build:
+    cmds:
+      - poetry run flet pack ./frontend/app.py

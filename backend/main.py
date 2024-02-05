@@ -1,6 +1,7 @@
 from typing import Literal
 
 from backend.src.instance import process_instance
+from backend.src.queries import get_jobs_list
 from backend.src.session import session
 from backend.src.settings import settings
 from utils.main_process import main_process
@@ -30,21 +31,30 @@ def main(
     - ResultPath: path to result directory with porcessed images.
     """
     if not login or not password:
-        # fixme #4
         pass
     if not settings.RESULT_PATH.exists():
         settings.RESULT_PATH.mkdir()
 
     session.auth = (login, password)
     _format = _format.replace(" ", "%20")
-    for _id in id_list:
+
+    jobs_list = []
+    if _type == "tasks":
+        for task_id in id_list:
+            jobs_list.extend(get_jobs_list(task_id))
+    elif _type == "jobs":
+        jobs_list = id_list
+    elif _type == "projects":
+        raise NotImplemented
+    else:
+        raise ValueError("Incorrect type of processed instance.")
+
+    for _id in jobs_list:
         if not main_process.over:
             process_instance(
                 _id,
-                _type,
                 _format,
                 transparency,
-                type_element,
             )
         else:
             process_end()
@@ -52,10 +62,3 @@ def main(
     result_path = ResultPath(settings.RESULT_PATH)
 
     return result_path
-
-
-# fixme #5
-# Сделать имена итоговых изображений так, как они называются в папке.
-
-# fixme #6
-# Сейчас требуется введение либо полигонов, либо боксов: сделать авто-определение.

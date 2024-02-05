@@ -20,10 +20,13 @@ def drow_masks(images: list[Element], colors, _id, transparency):
         will_draw = 0
         if not main_process.over:
             image_name = image.attrib.get("name").split("/")[-1]
-            image_id = image.attrib.get("id")
             image_path = settings.RESULT_PATH / str(_id) / image_name
 
-            image_origin = Image.open(image_path).convert("RGBA")
+            try:
+                image_origin = Image.open(image_path).convert("RGBA")
+            except Exception as e:
+                print(f"WARNING: {e}: {image_name}")
+                continue
             mask = Image.new(mode="RGBA", size=image_origin.size)
             mask_draw = ImageDraw.Draw(mask)
 
@@ -39,7 +42,13 @@ def drow_masks(images: list[Element], colors, _id, transparency):
             if not main_process.over:
                 coords = _get_coords(polygon, "polygon")
                 label = polygon.attrib.get("label")
-                hex_color = colors[label]
+                try:
+                    hex_color = colors[label]
+                except Exception as e:
+                    print(
+                        f"ERROR: {repr(e)}: not found such color using label: {label}"
+                    )
+                    continue
                 rgb_color = hex_to_rgb(hex_color)
                 rgb_color.append(transparency)
                 mask_draw.polygon(coords, fill=tuple(rgb_color))
@@ -67,8 +76,8 @@ def drow_masks(images: list[Element], colors, _id, transparency):
             res_image = Image.alpha_composite(image_origin, mask)
             res_image.save(image_res_file)
 
-            if image_path.exists():
-                try:
-                    os.remove(image_path)
-                except:
-                    print(f"deleting was failed: {image_name}")
+
+"""
+Почему папка не открывается?
+И Пройтись по методам THX.
+"""

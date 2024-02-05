@@ -84,22 +84,9 @@ def sort_by_zorder(elements: "list[ET.Element]") -> "list[ET.Element]":
     return result
 
 
-def filter_images(images, type_element) -> list[ET.Element]:
-    """
-    Get only annotated images
-    """
-    image_list = []
-    for image in images:
-        polygon = image.find(f"./{type_element}")
-        if not isinstance(polygon, NoneType):
-            image_list.append(image)
-    return image_list
-
-
-def rename_images(image_path, annotations_path):
+def rename_images(image_path: Path, annotations_path: Path) -> None:
     tree = ET.parse(annotations_path / "annotations.xml")
     images = tree.getroot().findall(".//image")
-    
     for image in images:
         image_name = image.attrib.get("name").split("/")[-1]
         image_id = image.attrib.get("id")
@@ -109,6 +96,15 @@ def rename_images(image_path, annotations_path):
                     - затем посмотреть, обрабатываются ли таски (сделать, чтобы обрабатывались)
                     - протестить таски из проекта Мартина (тестовый проект)        
         """
-        src = ...
-        dst = ...
-        os.rename(src=..., dst=...)
+        for _, _, files in os.walk(image_path):
+            for file in files:
+                file_name = file.split(".")[0]
+                file_format = file.split(".")[1]
+                if file_name == image_id:
+                    try:
+                        src = str(image_path / f"{file_name}.{file_format}")
+                        dst = str(image_path / image_name)
+                        os.rename(src=src, dst=dst)
+                        break
+                    except Exception as e:
+                        print(f"Error: {repr(e)}: {image}")

@@ -7,11 +7,17 @@ from traceback import format_exc
 sys.path.append(str(Path(__file__).parent.parent))
 
 import flet as ft
+from dotenv import load_dotenv
 
 from backend.main import main as backend_main
 from frontend import settings
 from utils.main_process import main_process
 from utils.misc import open_depends_os
+
+load_dotenv()
+
+login_value = os.environ.get("USER-NAME", "")
+password_value = os.environ.get("PASS-WORD", "")
 
 
 def main_app(page: ft.Page):
@@ -34,10 +40,10 @@ def main_app(page: ft.Page):
             ]
         ),
     )
-    login_text = ft.TextField(label="Логин", width=300, value=settings.LOGIN)
+    login_text = ft.TextField(label="Логин", width=300, value=login_value)
     login = ft.Row([login_text], alignment=ft.MainAxisAlignment.CENTER)
     password_text = ft.TextField(
-        label="Пароль", width=300, value=settings.PASSWORD
+        label="Пароль", width=300, value=password_value
     )
     password = ft.Row([password_text], alignment=ft.MainAxisAlignment.CENTER)
     list_id_text = ft.TextField(
@@ -63,35 +69,13 @@ def main_app(page: ft.Page):
         help_text.visible = True
 
     def start(e):
-        # fixme #1:
-
-        # Сделать прогрессбар по такому шаблону:
-
-        #     async def button_clicked(e):
-        #     t.value = "Doing something..."
-        #     await t.update_async()
-        #     b.disabled = True
-        #     await b.update_async()
-        #     for i in range(0, 101):
-        #         pb.value = i * 0.01
-        #         await asyncio.sleep(0.1)
-        #         await pb.update_async()
-        #     t.value = "Click the button..."
-        #     await t.update_async()
-        #     b.disabled = False
-        #     await b.update_async()
-
-        # Но не асинхронно.
-
         main_process.over = False
         help_text.visible = False
         page.update()
         id_list = get_id_list(list_id_text.value)
         if login_text.value == "":
-            # fixme #2
             pass
         if password_text.value == "":
-            # fixme #3
             pass
         if id_list == -1:
             txt_error.value = (
@@ -116,25 +100,23 @@ def main_app(page: ft.Page):
                 password=password_text.value,
             )
         except Exception as e:
-            # fixme #7
-            # Сделать лог ошибок
             progress_bar.visible = False
             txt_error.value = "Произошла ошибка. Обрадитесь к разработчику."
             txt_error.visible = True
             print(format_exc(), file=open("error_log.txt", "w"))
             page.update()
-            print("ERROR: ", e)
+            print(f"ERROR: {repr(e)}: ask developer!")
             return
         if txt_error.visible == True:
             txt_error.visible = False
         progress_bar.visible = False
         folder_button.disabled = False
-        show_help_text("ready")
+        show_help_text("Готово")
         page.update()
 
     def cancel(e):
         main_process.over = True
-        show_help_text("canceled")
+        show_help_text("Отмена операции, подождите...")
 
     slider_label = ft.Text(value=50, size=18)
     start_button = ft.ElevatedButton("Старт", width=btn_size, on_click=start)
@@ -246,7 +228,7 @@ def main_app(page: ft.Page):
                                     ft.Row(
                                         [
                                             start_button,
-                                            cancel_button,  # fixme Добавить текст: "Отмена операции, подождите..."
+                                            cancel_button,
                                             folder_button,
                                         ],
                                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -280,5 +262,6 @@ def main_app(page: ft.Page):
     )
 
 
-if __name__ == "__main__":
-    ft.app(target=main_app)
+ft.app(
+    target=main_app,
+)
