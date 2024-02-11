@@ -35,10 +35,10 @@ for:
     - image: Visual Studio 2019
 
   after_build:
-  - 7z a counter-windows.zip %CD%\dist\*.exe
+  - 7z a automask-windows.zip %CD%\dist\*.exe
 
   artifacts:
-  - path: counter-windows.zip
+  - path: automask-windows.zip
 
 #
 #   macOS package
@@ -49,10 +49,10 @@ for:
     - image: macOS
 
   after_build:
-  - tar -czvf counter-macos.tar.gz -C dist main.app
+  - tar -czvf automask-macos.tar.gz -C dist automask.app
 
   artifacts:
-  - path: counter-macos.tar.gz
+  - path: automask-macos.tar.gz
 
 #
 #   Linux package
@@ -63,7 +63,7 @@ for:
     - image: Ubuntu
 
   after_build:
-  - tar -czvf counter-linux.tar.gz -C dist main
+  - tar -czvf automask-linux.tar.gz -C dist automask
 
   artifacts:
-  - path: counter-linux.tar.gz
+  - path: automask-linux.tar.gz
