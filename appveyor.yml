@@ -49,7 +49,7 @@ for:
     - image: macOS
 
   after_build:
-  - tar -czvf counter-macos.tar.gz -C dist counter.app
+  - tar -czvf counter-macos.tar.gz -C dist main.app
 
   artifacts:
   - path: counter-macos.tar.gz
@@ -63,7 +63,7 @@ for:
     - image: Ubuntu
 
   after_build:
-  - tar -czvf counter-linux.tar.gz -C dist counter
+  - tar -czvf counter-linux.tar.gz -C dist main
 
   artifacts:
   - path: counter-linux.tar.gz
