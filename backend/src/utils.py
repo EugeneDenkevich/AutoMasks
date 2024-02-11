@@ -3,6 +3,7 @@ from pathlib import Path
 from types import NoneType
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
+from PIL import Image
 
 from backend.src.settings import settings
 
@@ -90,21 +91,18 @@ def rename_images(image_path: Path, annotations_path: Path) -> None:
     for image in images:
         image_name = image.attrib.get("name").split("/")[-1]
         image_id = image.attrib.get("id")
-        """
-        Продолжить: - дописывать функцию переименования всех изображений.
-                    - далее протестировать, как это работает (падало именно из-за того, что не могло найти файл изображения)
-                    - затем посмотреть, обрабатываются ли таски (сделать, чтобы обрабатывались)
-                    - протестить таски из проекта Мартина (тестовый проект)        
-        """
         for _, _, files in os.walk(image_path):
             for file in files:
                 file_name = file.split(".")[0]
                 file_format = file.split(".")[1]
                 if file_name == image_id:
                     try:
-                        src = str(image_path / f"{file_name}.{file_format}")
-                        dst = str(image_path / image_name)
-                        os.rename(src=src, dst=dst)
+                        src = image_path / f"{file_name}.{file_format}"
+                        dst = image_path / image_name
+                        img = Image.open(src)
+                        img.save(dst)
+                        if src.exists():
+                            os.remove(src)
                         break
                     except Exception as e:
                         print(f"Error: {repr(e)}: {image}")

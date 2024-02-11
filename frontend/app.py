@@ -3,6 +3,7 @@ import sys
 import webbrowser as wb
 from pathlib import Path
 from traceback import format_exc
+import logging
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -53,7 +54,7 @@ def main_app(page: ft.Page):
     help_text = ft.Text(value="Готово.", visible=False, color=ft.colors.GREEN)
 
     def open_folder(e):
-        folder_path = (Path(__file__).parent.parent / "result").resolve()
+        folder_path = (Path.cwd() / "result").resolve()
 
         if not folder_path.exists():
             os.mkdir(folder_path)
@@ -101,11 +102,11 @@ def main_app(page: ft.Page):
             )
         except Exception as e:
             progress_bar.visible = False
-            txt_error.value = "Произошла ошибка. Обрадитесь к разработчику."
+            txt_error.value = "Произошла ошибка. " \
+                              "Возможно введён веверный id"
             txt_error.visible = True
-            print(format_exc(), file=open("error_log.txt", "w"))
+            logging.error(f"{e}")
             page.update()
-            print(f"ERROR: {repr(e)}: ask developer!")
             return
         if txt_error.visible == True:
             txt_error.visible = False
@@ -261,7 +262,7 @@ def main_app(page: ft.Page):
         ),
     )
 
-
-ft.app(
-    target=main_app,
-)
+# if __name__ == "__main__":
+    # ft.app(
+    #     target=main_app,
+    # )

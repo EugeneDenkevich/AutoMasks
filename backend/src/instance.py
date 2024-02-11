@@ -1,6 +1,7 @@
 import os
 import shutil
 from xml.etree import ElementTree as ET
+import logging
 
 from backend.src.masks import drow_masks
 from backend.src.queries import get_jobs_data
@@ -19,7 +20,10 @@ def process_instance(_id, _format, transparency):
     if instance_path.exists():
         shutil.rmtree(instance_path)
     transparency = int(2.55 * transparency)
-    images_zip, annotations_zip = get_jobs_data(_id, _format)
+    jobs_data = get_jobs_data(_id, _format)
+    if isinstance(jobs_data, int):
+        raise Exception(f"Downloading status_code: {jobs_data}")
+    images_zip, annotations_zip = jobs_data
     image_path = extract_zip(_id, images_zip, is_image=True)
     annotations_path = extract_zip(_id, annotations_zip)
 

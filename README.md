@@ -1,19 +1,16 @@
 # AutoMask
 
-**Create environment:**
+Run:
 ```
-copy ./backend/.env-sample ./backend/.env
+poetry run flet run ./main.py
 ```
-Fill ./backend/.env using your credentials
 
-**Run:**
+Run hot-reload:
+```
+poetry run flet run ./frontend/app.py -d
+```
 
+Pack:
 ```
-pip install poetry==1.7.1 
-```
-```
-poetry install --no-root
-```
-```
-poetry run python main.py
+poetry run flet run ./frontend/app.py
 ```

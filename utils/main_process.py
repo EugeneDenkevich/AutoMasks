@@ -7,6 +7,11 @@ from typing import final
 class MainProcess:
     over: bool = False
 
+    def cancel(self):
+        """
+        Finish the processing on backend.
+        """
+        pass
 
 main_process = MainProcess()
 
