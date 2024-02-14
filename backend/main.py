@@ -1,4 +1,5 @@
-from typing import Literal
+from typing import Literal, Optional
+from pathlib import Path
 
 from backend.src.instance import process_instance
 from backend.src.queries import get_jobs_list
@@ -7,9 +8,68 @@ from backend.src.settings import settings
 from utils.main_process import main_process
 from utils.main_process import process_end
 
+from backend.src.converters import row_data_to_dto
+from backend.src.schemas import InputDTO
+from backend.src.enums import TypeEnum
+from backend.src.handlers import handle_job
+from backend.src.handlers import handle_task
+from backend.src.handlers import handle_project
+
+
+def main_(
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+    id_list: Optional[str] = None,
+    type: Optional[str] = None,
+    transparency: Optional[str] = None,
+) -> None:
+    """Главная функция бэкенда"""
+
+    # Переводим сырые данные в модель DTO.
+    input: InputDTO = row_data_to_dto(
+        username=username,
+        password=password,
+        id_list=id_list,
+        type=type,
+        transparency=transparency,
+    )
+
+    # Входим в систему CVAT.
+    session.auth = (input.username, input.username)
+    
+    # Устанавливаем прозрачность.
+    settings.TRANSPARENCY = input.transparency
+
+    # Обрабатываем данные по типу сущности.
+    if input.type == TypeEnum.JOBS:
+        for job_id in input.id_list:
+            handle_job(job_id)
+    if input.type == TypeEnum.TASKS:
+        for task_id in input.id_list:
+            handle_task(task_id)
+    if input.type == TypeEnum.PROJECTS:
+        for project_id in input.id_list:
+            handle_project(project_id)
+
+
+
+
+
+
 
 class ResultPath(str):
     pass
+
+
+
+
+
+
+
+
+
+
+
 
 
 def main(

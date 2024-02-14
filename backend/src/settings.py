@@ -10,6 +10,7 @@ load_dotenv()
 class Settings:
     API_URL = "https://cvat2.trainingdata.solutions/api"
     RESULT_PATH = Path(".").resolve() / "result"
+    TRANSPARENCY: int = 100
 
 
 settings = Settings()

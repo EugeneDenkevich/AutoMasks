@@ -8,6 +8,48 @@ from PIL import Image
 from backend.src.settings import settings
 
 
+def extract_archives(
+    instance_path: Path,
+    images_zip: bytes,
+    annotations_zip: bytes
+):
+    """Извлечение архивов с изображениями и аннотациями"""
+    
+    path_zip_image = (instance_path / "temp-images.zip").resolve()
+    path_zip_annotations = (instance_path / "temp-annotations.zip").resolve()
+
+    with open(path_zip_image, "wb") as f:
+        f.write(images_zip)
+    with open(path_zip_annotations, "wb") as f:
+        f.write(annotations_zip)
+
+    with ZipFile(path_zip_image, "r") as f:
+        f.extractall(instance_path)
+        images = f.filelist
+        for image in images:
+            image_id = image.filename.split(".")[0]
+            format = image.filename.split(".")[1]
+            os.rename(
+                instance_path / image.filename,
+                instance_path / f"{str(int(image_id))}.{format}",
+            )
+    with ZipFile(path_zip_annotations, "r") as f:
+        f.extractall(instance_path)
+
+    if path_zip_image.exists():
+        os.remove(path_zip_image)
+    if path_zip_annotations.exists():
+        os.remove(path_zip_annotations)
+
+
+
+
+
+
+
+
+
+
 def extract_zip(job, archive, is_image: bool = False) -> Path:
     """
     Extract zip-archive and get path to folder called like instance's id

@@ -48,7 +48,7 @@ def main_app(page: ft.Page):
     )
     password = ft.Row([password_text], alignment=ft.MainAxisAlignment.CENTER)
     list_id_text = ft.TextField(
-        label="id (через пробел или запятую):", width=300, height=50
+        label="id (через пробел):", width=300, height=50
     )
     list_id = ft.Row([list_id_text], alignment=ft.MainAxisAlignment.CENTER)
     help_text = ft.Text(value="Готово.", visible=False, color=ft.colors.GREEN)

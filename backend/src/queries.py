@@ -1,41 +1,41 @@
 from tenacity import retry
 from tenacity import stop_after_attempt
+from tenacity import retry_if_exception_type
 import logging
 
 from backend.src.session import session
 from backend.src.settings import settings
+from backend.src.exceprions import RetryExceprion
 from utils.main_process import main_process
 
 
-@retry(stop=stop_after_attempt(10000))
-def get_jobs_data(_id: int, _format: str) -> tuple[bytes]:
-    """
-    Get tuple with 2 archives: images and annotations.
-    """
+@retry(
+    stop=stop_after_attempt(30),
+    retry=retry_if_exception_type(RetryExceprion)
+)
+def get_archives(job_id: int) -> tuple[bytes]:
+    """Получение архивов с изображениями и аннотациями"""
+    
     image_archive_response = session.get(
-        url=f"{settings.API_URL}"
-            f"/jobs/{_id}"
-            f"/data",
-        params = {
+        url=f"{settings.API_URL}/jobs/{job_id}/data",
+        params={
             "type": "chunk",
             "number": 0,
         },
     )
     
-    if image_archive_response.status_code != 200:
-        return image_archive_response.status_code
-
     annotations_archive_response = session.get(
-        f"{settings.API_URL}/jobs/{_id}/annotations?action=download&format={_format}",
+        url=f"{settings.API_URL}/jobs/{job_id}/annotations",
+        params={
+            "action": "download",
+            "format": r"CVAT%20for%20images%201.1",
+        },
     )
-
-    image_archive = image_archive_response.content
-    annotations_archive = annotations_archive_response.content
     
-    if not image_archive or not annotations_archive:
-        raise Exception
+    if not image_archive_response.content or not annotations_archive_response.content:
+        raise RetryExceprion
     
-    return image_archive, annotations_archive
+    return image_archive_response.content, annotations_archive_response.content
 
 
 @retry(stop=stop_after_attempt(10000))
