@@ -101,6 +101,7 @@ def main_app(page: ft.Page):
                 password=password_text.value,
             )
         except Exception as e:
+            print(format_exc(), file=open(f"errors.txt", 'w'))
             progress_bar.visible = False
             txt_error.value = "Произошла ошибка. " \
                               "Возможно введён веверный id"
