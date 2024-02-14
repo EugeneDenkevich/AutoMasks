@@ -28,7 +28,7 @@ deploy:
 #
 #   Windows package
 # 
-# for:
+for:
 # -
 #   matrix:
 #     only:
