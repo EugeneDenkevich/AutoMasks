@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/home/eugene/GIT/TrainingData/projects/AutoMask/frontend/app.py", line 96, in start
+    backend_main(
+  File "/home/eugene/GIT/TrainingData/projects/AutoMask/backend/main.py", line 57, in main
+    process_instance(
+  File "/home/eugene/GIT/TrainingData/projects/AutoMask/backend/src/instance.py", line 25, in process_instance
+    raise Exception(f"Downloading status_code: {jobs_data}")
+Exception: Downloading status_code: 404
+

@@ -32,8 +32,11 @@ def main(
     """
     if not login or not password:
         pass
-    if not settings.RESULT_PATH.exists():
-        settings.RESULT_PATH.mkdir()
+    try:
+        if not settings.RESULT_PATH.exists():
+            settings.RESULT_PATH.mkdir()
+    except:
+        raise Exception("Не удалось создать папку")
 
     session.auth = (login, password)
     _format = _format.replace(" ", "%20")

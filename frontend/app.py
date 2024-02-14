@@ -103,8 +103,7 @@ def main_app(page: ft.Page):
         except Exception as e:
             print(format_exc(), file=open(f"errors.txt", 'w'))
             progress_bar.visible = False
-            txt_error.value = "Произошла ошибка. " \
-                              "Возможно введён веверный id"
+            txt_error.value = format_exc()
             txt_error.visible = True
             logging.error(f"{e}")
             page.update()
