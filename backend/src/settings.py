@@ -1,3 +1,5 @@
+import sys
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -9,7 +11,7 @@ load_dotenv()
 @dataclass
 class Settings:
     API_URL = "https://cvat2.trainingdata.solutions/api"
-    RESULT_PATH = Path(".").resolve() / "result"
+    RESULT_PATH = Path(sys.argv[0]).parent.resolve() / "result"
 
 
 settings = Settings()
