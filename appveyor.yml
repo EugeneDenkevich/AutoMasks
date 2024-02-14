@@ -43,7 +43,7 @@ deploy:
 #
 #   macOS package
 # 
-# -
+-
   matrix:
     only:
     - image: macOS
