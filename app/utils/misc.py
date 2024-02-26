@@ -1,5 +1,7 @@
 import os
 
+from frontend.exceptions import CantOpenFileError
+
 
 def open_depends_os(path: str) -> None:
     try:
@@ -11,4 +13,4 @@ def open_depends_os(path: str) -> None:
             try:
                 os.system(f"open {path}")  # Для macOS
             except:
-                print("Не удалось открыть файл")
+                raise CantOpenFileError()

@@ -1,0 +1,107 @@
+import os
+import shutil
+from pathlib import Path
+from xml.etree import ElementTree as ET
+from zipfile import BadZipFile
+from zipfile import ZipFile
+
+from backend.src.drower import Drawer
+from backend.src.exceptions import NotZipFile
+from backend.src.exceptions import RetryExceprion
+from backend.src.session import session
+from backend.src.settings import settings
+from PIL import Image
+from tenacity import retry
+from tenacity import retry_if_exception_type
+from tenacity import stop_after_attempt
+
+
+class Job:
+    """Класс сущности job"""
+
+    job_path: Path = None
+
+    def __init__(self, job_id, image=None):
+        self.job_id = job_id
+        self.image = image
+
+    def create_path(self):
+        """Создание директории для job"""
+
+        self.job_path = settings.RESULT_PATH / str(self.job_id)
+        if self.job_path.exists():
+            shutil.rmtree(self.job_path)
+        os.mkdir(self.job_path)
+
+    @retry(
+        stop=stop_after_attempt(30),
+        retry=retry_if_exception_type(RetryExceprion),
+    )
+    def download_annotations(self) -> Path:
+        """
+        Скачать аннотации сущности job
+        :return: Путь к аннотациями
+        """
+
+        annotations = session.get(
+            url=f"{settings.API_URL}/jobs/{self.job_id}/annotations",
+            params={
+                "action": "download",
+                "format": "CVAT for images 1.1",
+            },
+        ).content
+        if not annotations:
+            raise RetryExceprion()
+        path_zip = self.job_path / "annotations.zip"
+        with open(path_zip, "wb") as f:
+            f.write(annotations)
+        try:
+            with ZipFile(path_zip, "r") as f:
+                f.extractall(self.job_path)
+        except BadZipFile as e:
+            raise NotZipFile(e)
+        if path_zip.exists():
+            os.remove(path_zip)
+        return self.job_path / "annotations.xml"
+
+    @retry(
+        stop=stop_after_attempt(30),
+        retry=retry_if_exception_type(RetryExceprion),
+    )
+    def download_image(self, image: dict):
+        """Скачать изображение"""
+
+        for frame, image_name in image.items():
+            image_response = session.get(
+                url=f"{settings.API_URL}/jobs/{self.job_id}/data",
+                params={
+                    "type": "frame",
+                    "number": frame,
+                },
+            )
+            img_path = self.job_path / image_name
+            with open(img_path, "wb") as f:
+                f.write(image_response.content)
+
+    @retry(
+        stop=stop_after_attempt(30),
+        retry=retry_if_exception_type(RetryExceprion),
+    )
+    def get_images(self) -> list[dict]:
+        """Получение словаря с id и именами изображений сущности job"""
+
+        tree = ET.parse(self.job_path / "annotations.xml")
+        start_frame = int(tree.getroot().find("./meta/job/start_frame").text)
+        stop_frame = int(tree.getroot().find("./meta/job/stop_frame").text)
+        frames = range(start_frame, stop_frame + 1)
+        images = tree.getroot().findall(".//image")
+        result_images = []
+        for image, frame in zip(images, frames):
+            result_images.append(
+                {frame: image.attrib.get("name").split("/")[-1]}
+            )
+        return result_images
+
+    @property
+    def path(self):
+        return self.job_path

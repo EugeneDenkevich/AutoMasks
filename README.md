@@ -2,15 +2,12 @@
 
 Run:
 ```
-poetry run flet run ./main.py
+poetry run flet run app
 ```
-
-Run hot-reload:
+Build:
 ```
-poetry run flet run ./frontend/app.py -d
+poetry run flet pack app
 ```
-
-Pack:
-```
-poetry run flet run ./frontend/app.py
-```
+TODO:
+[ ] Добавить к авто-определению: элипсы,
+[ ] Сделать информативный прогрессбар.

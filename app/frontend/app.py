@@ -1,18 +1,18 @@
 import os
-import sys
-import webbrowser as wb
 from pathlib import Path
 from traceback import format_exc
-import logging
-
-sys.path.append(str(Path(__file__).parent.parent))
 
 import flet as ft
-from dotenv import load_dotenv
-
 from backend.main import main as backend_main
-from frontend import settings
-from utils.main_process import main_process
+from backend.src.exceptions import EmptyIdListError
+from backend.src.exceptions import ImageNotFound
+from backend.src.exceptions import InvalidIdError
+from backend.src.exceptions import NotZipFile
+from backend.src.exceptions import ProcessWasStopped
+from backend.src.exceptions import RetryExceprion
+from dotenv import load_dotenv
+from frontend.radio import type_radio_group
+from utils.main_service import main_service
 from utils.misc import open_depends_os
 
 load_dotenv()
@@ -22,27 +22,17 @@ password_value = os.environ.get("PASS-WORD", "")
 
 
 def main_app(page: ft.Page):
-    page.title = settings.TITLE
+    page.title = "AutoMask"
     page.theme_mode = "light"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.window_width = 390
-    page.window_height = 660
+    page.window_height = 760
     page.bgcolor = ft.colors.INDIGO_100
 
     btn_size = 110
-    jobs_radio = ft.Radio(label="jobs", value="jobs")
-    tasks_radio = ft.Radio(label="tasks", value="tasks")
-    choise_instance = ft.RadioGroup(
-        value="jobs",
-        content=ft.Row(
-            [
-                jobs_radio,
-                tasks_radio,
-            ]
-        ),
-    )
-    login_text = ft.TextField(label="Логин", width=300, value=login_value)
-    login = ft.Row([login_text], alignment=ft.MainAxisAlignment.CENTER)
+
+    username_text = ft.TextField(label="Логин", width=300, value=login_value)
+    username = ft.Row([username_text], alignment=ft.MainAxisAlignment.CENTER)
     password_text = ft.TextField(
         label="Пароль", width=300, value=password_value
     )
@@ -51,7 +41,7 @@ def main_app(page: ft.Page):
         label="id (через пробел):", width=300, height=50
     )
     list_id = ft.Row([list_id_text], alignment=ft.MainAxisAlignment.CENTER)
-    help_text = ft.Text(value="Готово.", visible=False, color=ft.colors.GREEN)
+    help_text = ft.Text(visible=False, color=ft.colors.GREEN)
 
     def open_folder(e):
         folder_path = (Path.cwd() / "result").resolve()
@@ -62,62 +52,89 @@ def main_app(page: ft.Page):
 
     def show_help_text(_type: str) -> None:
         if _type == "canceled":
-            help_text.value = "Отменено"
+            help_text.value = "Отмена операции, подождите..."
             help_text.color = ft.colors.RED
         elif _type == "ready":
             help_text.value = "Готово"
             help_text.color = ft.colors.GREEN
+        elif _type == "empty":
+            help_text.value = "Заполните все пустые поля"
+            help_text.color = ft.colors.RED
         help_text.visible = True
+        page.update()
+        
+    def hide_help_text(_type: str) -> None:
+        if _type == "canceled":
+            help_text.visible = False
+        page.update()
 
-    def start(e):
-        main_process.over = False
+    def cancel(e):
+        show_help_text("canceled")
+        page.update()
+        main_service.cancel()
+
+    def show_error(message: str):
+        progress_bar.visible = False
+        txt_error.value = message
+        txt_error.visible = True
+        hide_help_text("canceled")
+        page.update()
+
+    def init_start():
+        main_service.clean()
         help_text.visible = False
+        txt_error.visible = False
         page.update()
-        id_list = get_id_list(list_id_text.value)
-        if login_text.value == "":
-            pass
-        if password_text.value == "":
-            pass
-        if id_list == -1:
-            txt_error.value = (
-                "Пожалуйста, введите корректные id через пробел или запятую."
-            )
-            if txt_error.visible == False:
-                txt_error.visible = True
-                page.update()
-            return
-        else:
-            if txt_error.visible == True:
-                txt_error.visible = False
-                page.update()
-        progress_bar.visible = True
-        page.update()
-        try:
-            backend_main(
-                id_list=id_list,
-                _type=choise_instance.value,
-                transparency=slider.value,
-                login=login_text.value,
-                password=password_text.value,
-            )
-        except Exception as e:
-            progress_bar.visible = False
-            txt_error.value = "Произошла ошибка. " \
-                              "Возможно введён веверный id"
-            txt_error.visible = True
-            logging.error(f"{e}")
-            page.update()
-            return
+
+    def shutdown_start():
         if txt_error.visible == True:
             txt_error.visible = False
         progress_bar.visible = False
         folder_button.disabled = False
-        show_help_text("Готово")
         page.update()
 
-    def cancel(e):
-        main_process.over = True
-        show_help_text("Отмена операции, подождите...")
+    def start(e):
+        init_start()
+        if username_text.value == "":
+            show_help_text("empty")
+            return
+        if password_text.value == "":
+            show_help_text("empty")
+            return
+        try:
+            progress_bar.visible = True
+            page.update()
+            backend_main(
+                username=username_text.value,
+                password=password_text.value,
+                id_list=list_id_text.value,
+                type=type_radio_group.value,
+                transparency=str(slider.value),
+            )
+        except RetryExceprion as e:
+            show_error("Нет связи с сервером CVAT")
+            return
+        except NotZipFile:
+            show_error("Проблема распаковки zip-архива")
+            return
+        except ImageNotFound:
+            show_error("Не найдены необходимые изображения")
+            return
+        except EmptyIdListError as e:
+            show_error("Вы не указали ни одного id")
+            return
+        except ProcessWasStopped as e:
+            show_error("Операция отменена")
+            return
+        except InvalidIdError as e:
+            show_error("Введите корректные id через пробел")
+            return
+        except Exception as e:
+            show_error("Произошла неизвестная ошибка")
+            print(format_exc())
+            return
+        shutdown_start()
+        show_help_text("ready")
 
     slider_label = ft.Text(value=50, size=18)
     start_button = ft.ElevatedButton("Старт", width=btn_size, on_click=start)
@@ -152,18 +169,6 @@ def main_app(page: ft.Page):
         width=250,
     )
 
-    def get_id_list(txt_id_list):
-        try:
-            id_list = list(map(int, txt_id_list.split()))
-            return id_list
-        except:
-            pass
-        try:
-            id_list = list(map(int, txt_id_list.split(",")))
-            return id_list
-        except Exception as e:
-            return -1
-
     page.add(
         ft.Row(
             [
@@ -182,12 +187,12 @@ def main_app(page: ft.Page):
                                 padding=10,
                                 border_radius=10,
                             ),
-                            login,
+                            username,
                             password,
                             ft.Column(
                                 [
                                     ft.Text("Выберите:"),
-                                    choise_instance,
+                                    type_radio_group,
                                 ],
                             ),
                             list_id,
@@ -229,6 +234,9 @@ def main_app(page: ft.Page):
                                     ft.Row(
                                         [
                                             start_button,
+                                            # TODO Обработать ситуацию, когда 
+                                            #      пользователь нажал на "Отмена",
+                                            #      когда процесс не запущен.
                                             cancel_button,
                                             folder_button,
                                         ],
@@ -261,8 +269,3 @@ def main_app(page: ft.Page):
             alignment=ft.MainAxisAlignment.CENTER,
         ),
     )
-
-# if __name__ == "__main__":
-    # ft.app(
-    #     target=main_app,
-    # )
