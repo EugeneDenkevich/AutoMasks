@@ -11,7 +11,7 @@ tasks:
   
   run:
     cmds:
-      - poetry run flet run app
+      - poetry run flet app
     desc: Run the app
 
   reload:
@@ -26,4 +26,4 @@ tasks:
 
   build:
     cmds:
-      - poetry run flet pack app
+      - poetry run flet pack app/main.py

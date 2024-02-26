@@ -1,7 +1,8 @@
-from backend.src.drower import Drawer
-from backend.src.exceptions import ProcessWasStopped
-from backend.src.job import Job
-from utils.main_service import main_service
+from app.backend.src.drower import Drawer
+from app.backend.src.exceptions import CantCreateFolderError
+from app.backend.src.exceptions import ProcessWasStopped
+from app.backend.src.job import Job
+from app.utils.main_service import main_service
 
 
 def handle_job(id: int):
@@ -9,7 +10,10 @@ def handle_job(id: int):
 
     # Готовим данные:
     job = Job(id)
-    job.create_path()
+    try:
+        job.create_path()
+    except Exception:
+        raise CantCreateFolderError()
     annotations_xml = job.download_annotations()
     images = job.get_images()
 
@@ -28,9 +32,9 @@ def handle_job(id: int):
 
 def handle_task(task_id: int):
     """Обработка сущности task"""
-    pass
+    raise NotImplementedError()
 
 
 def handle_project(project_id: int):
     """Обработка сущности project"""
-    pass
+    raise NotImplementedError()

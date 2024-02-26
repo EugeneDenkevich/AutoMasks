@@ -1,14 +1,14 @@
 from typing import Optional
 
-from backend.src.converters import row_data_to_dto
-from backend.src.enums import TypeEnum
-from backend.src.handlers import handle_job
-from backend.src.handlers import handle_project
-from backend.src.handlers import handle_task
-from backend.src.schemas import InputDTO
-from backend.src.session import session
-from backend.src.settings import settings
-from utils.main_service import main_service
+from app.backend.src.converters import row_data_to_dto
+from app.backend.src.enums import TypeEnum
+from app.backend.src.handlers import handle_job
+from app.backend.src.handlers import handle_project
+from app.backend.src.handlers import handle_task
+from app.backend.src.schemas import InputDTO
+from app.backend.src.session import session
+from app.backend.src.settings import settings
+from app.utils.main_service import main_service
 
 
 def main(

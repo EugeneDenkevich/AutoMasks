@@ -1,6 +1,6 @@
 import os
 
-from frontend.exceptions import CantOpenFileError
+from app.frontend.exceptions import CantOpenFileError
 
 
 def open_depends_os(path: str) -> None:

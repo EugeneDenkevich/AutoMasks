@@ -3,17 +3,19 @@ from pathlib import Path
 from traceback import format_exc
 
 import flet as ft
-from backend.main import main as backend_main
-from backend.src.exceptions import EmptyIdListError
-from backend.src.exceptions import ImageNotFound
-from backend.src.exceptions import InvalidIdError
-from backend.src.exceptions import NotZipFile
-from backend.src.exceptions import ProcessWasStopped
-from backend.src.exceptions import RetryExceprion
 from dotenv import load_dotenv
-from frontend.radio import type_radio_group
-from utils.main_service import main_service
-from utils.misc import open_depends_os
+
+from app.backend.main import main as backend_main
+from app.backend.src.exceptions import EmptyIdListError
+from app.backend.src.exceptions import ImageNotFound
+from app.backend.src.exceptions import InvalidIdError
+from app.backend.src.exceptions import NotZipFile
+from app.backend.src.exceptions import ProcessWasStopped
+from app.backend.src.exceptions import RetryExceprion
+from app.backend.src.exceptions import CantCreateFolderError
+from app.frontend.radio import type_radio_group
+from app.utils.main_service import main_service
+from app.utils.misc import open_depends_os
 
 load_dotenv()
 
@@ -25,7 +27,7 @@ def main_app(page: ft.Page):
     page.title = "AutoMask"
     page.theme_mode = "light"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.window_width = 390
+    page.window_width = 470
     page.window_height = 760
     page.bgcolor = ft.colors.INDIGO_100
 
@@ -62,13 +64,15 @@ def main_app(page: ft.Page):
             help_text.color = ft.colors.RED
         help_text.visible = True
         page.update()
-        
+
     def hide_help_text(_type: str) -> None:
         if _type == "canceled":
             help_text.visible = False
         page.update()
 
     def cancel(e):
+        if main_service.processing is False:
+            return
         show_help_text("canceled")
         page.update()
         main_service.cancel()
@@ -81,7 +85,7 @@ def main_app(page: ft.Page):
         page.update()
 
     def init_start():
-        main_service.clean()
+        main_service.start()
         help_text.visible = False
         txt_error.visible = False
         page.update()
@@ -94,13 +98,13 @@ def main_app(page: ft.Page):
         page.update()
 
     def start(e):
-        init_start()
         if username_text.value == "":
             show_help_text("empty")
             return
         if password_text.value == "":
             show_help_text("empty")
             return
+        init_start()
         try:
             progress_bar.visible = True
             page.update()
@@ -129,10 +133,17 @@ def main_app(page: ft.Page):
         except InvalidIdError as e:
             show_error("Введите корректные id через пробел")
             return
+        except NotImplementedError as e:
+            show_error("Функционал ещё не реализован")
+            return
+        except CantCreateFolderError as e:
+            show_error("Ошибка при ")
+            return
         except Exception as e:
             show_error("Произошла неизвестная ошибка")
-            print(format_exc())
-            return
+            raise Exception(e)
+        finally:
+            main_service.stop()
         shutdown_start()
         show_help_text("ready")
 
@@ -234,7 +245,7 @@ def main_app(page: ft.Page):
                                     ft.Row(
                                         [
                                             start_button,
-                                            # TODO Обработать ситуацию, когда 
+                                            # TODO Обработать ситуацию, когда
                                             #      пользователь нажал на "Отмена",
                                             #      когда процесс не запущен.
                                             cancel_button,

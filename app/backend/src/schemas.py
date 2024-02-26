@@ -1,5 +1,6 @@
-from backend.src.enums import TypeEnum
 from pydantic import BaseModel
+
+from app.backend.src.enums import TypeEnum
 
 
 class InputDTO(BaseModel):

@@ -3,10 +3,11 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
 
-from backend.src.exceptions import ImageNotFound
-from backend.src.settings import settings
 from PIL import Image
 from PIL import ImageDraw
+
+from app.backend.src.exceptions import ImageNotFound
+from app.backend.src.settings import settings
 
 
 class Drawer:

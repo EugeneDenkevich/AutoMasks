@@ -12,13 +12,20 @@ tasks:
 projects:
 214
 """
-import logging
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent  # isort: ignore
+sys.path.append(str(ROOT))  # isort: ignore
 
 import flet as ft
-from frontend.app import main_app
 
-logging.basicConfig(level=logging.INFO)
+from app.config import load_config
+from app.frontend.app import main_app
+
+load_config()
 
 ft.app(
     target=main_app,
+    name="AutoMask",
 )

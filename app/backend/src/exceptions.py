@@ -20,3 +20,7 @@ class ProcessWasStopped(Exception):
 
 class InvalidIdError(Exception):
     """Исключение при некорректных id"""
+
+
+class CantCreateFolderError(Exception):
+    """Исключение при попытке создать папку"""

@@ -1,6 +1,6 @@
-from backend.src.exceptions import EmptyIdListError
-from backend.src.exceptions import InvalidIdError
-from backend.src.schemas import InputDTO
+from app.backend.src.exceptions import EmptyIdListError
+from app.backend.src.exceptions import InvalidIdError
+from app.backend.src.schemas import InputDTO
 
 
 def row_data_to_dto(

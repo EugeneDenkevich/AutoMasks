@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from typing import final
 
-from backend.src.settings import settings
+from app.backend.src.settings import settings
 
 
 @final
@@ -11,14 +11,20 @@ class MainService:
     """Класс для всгпомогательных операций"""
 
     over: bool = False
+    processing: bool = False
 
     def cancel(self):
         """Останавливаем обработку данных"""
         self.over = True
 
-    def clean(self):
+    def start(self):
         """Возобновляем обработку данных"""
         self.over = False
+        self.processing = True
+
+    def stop(self):
+        """Останавливаем обработку данных"""
+        self.processing = False
 
     def create_result_path(self):
         """Создаём папку \"results\" """

@@ -5,15 +5,14 @@ from xml.etree import ElementTree as ET
 from zipfile import BadZipFile
 from zipfile import ZipFile
 
-from backend.src.drower import Drawer
-from backend.src.exceptions import NotZipFile
-from backend.src.exceptions import RetryExceprion
-from backend.src.session import session
-from backend.src.settings import settings
-from PIL import Image
 from tenacity import retry
 from tenacity import retry_if_exception_type
 from tenacity import stop_after_attempt
+
+from app.backend.src.exceptions import NotZipFile
+from app.backend.src.exceptions import RetryExceprion
+from app.backend.src.session import session
+from app.backend.src.settings import settings
 
 
 class Job:
@@ -27,7 +26,7 @@ class Job:
 
     def create_path(self):
         """Создание директории для job"""
-
+        
         self.job_path = settings.RESULT_PATH / str(self.job_id)
         if self.job_path.exists():
             shutil.rmtree(self.job_path)
