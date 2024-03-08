@@ -1,5 +1,6 @@
 import os
 import shutil
+import logging
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from zipfile import BadZipFile
@@ -11,6 +12,7 @@ from tenacity import stop_after_attempt
 
 from app.backend.src.exceptions import NotZipFile
 from app.backend.src.exceptions import RetryExceprion
+from app.backend.src.exceptions import ImageNotFoundServerError
 from app.backend.src.session import session
 from app.backend.src.settings import settings
 
@@ -26,7 +28,7 @@ class Job:
 
     def create_path(self):
         """Создание директории для job"""
-        
+
         self.job_path = settings.RESULT_PATH / str(self.job_id)
         if self.job_path.exists():
             shutil.rmtree(self.job_path)
@@ -78,6 +80,8 @@ class Job:
                     "number": frame,
                 },
             )
+            if image_response.status_code == 500:
+                raise ImageNotFoundServerError()
             img_path = self.job_path / image_name
             with open(img_path, "wb") as f:
                 f.write(image_response.content)

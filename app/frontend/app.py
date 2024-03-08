@@ -1,18 +1,18 @@
 import os
 from pathlib import Path
-from traceback import format_exc
 
 import flet as ft
 from dotenv import load_dotenv
 
 from app.backend.main import main as backend_main
+from app.backend.src.exceptions import CantCreateFolderError
 from app.backend.src.exceptions import EmptyIdListError
-from app.backend.src.exceptions import ImageNotFound
+from app.backend.src.exceptions import ImageNotFoundServerError
 from app.backend.src.exceptions import InvalidIdError
 from app.backend.src.exceptions import NotZipFile
 from app.backend.src.exceptions import ProcessWasStopped
 from app.backend.src.exceptions import RetryExceprion
-from app.backend.src.exceptions import CantCreateFolderError
+from app.backend.src.exceptions import ImageNotFoundError
 from app.frontend.radio import type_radio_group
 from app.utils.main_service import main_service
 from app.utils.misc import open_depends_os
@@ -121,23 +121,26 @@ def main_app(page: ft.Page):
         except NotZipFile:
             show_error("Проблема распаковки zip-архива")
             return
-        except ImageNotFound:
+        except ImageNotFoundError:
             show_error("Не найдены необходимые изображения")
             return
-        except EmptyIdListError as e:
+        except EmptyIdListError:
             show_error("Вы не указали ни одного id")
             return
-        except ProcessWasStopped as e:
+        except ProcessWasStopped:
             show_error("Операция отменена")
             return
-        except InvalidIdError as e:
+        except InvalidIdError:
             show_error("Введите корректные id через пробел")
             return
-        except NotImplementedError as e:
+        except NotImplementedError:
             show_error("Функционал ещё не реализован")
             return
-        except CantCreateFolderError as e:
-            show_error("Ошибка при ")
+        except CantCreateFolderError:
+            show_error("Ошибка при создании папки \"result\"")
+            return
+        except ImageNotFoundServerError:
+            show_error("Не найдены изображения на сервере CVAT")
             return
         except Exception as e:
             show_error("Произошла неизвестная ошибка")

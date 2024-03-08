@@ -6,7 +6,7 @@ class NotZipFile(Exception):
     """Исключение при неудачной попытке распаковки архива"""
 
 
-class ImageNotFound(Exception):
+class ImageNotFoundError(Exception):
     """Исключение при неудачной попытке создания экземпляра изображения"""
 
 
@@ -24,3 +24,6 @@ class InvalidIdError(Exception):
 
 class CantCreateFolderError(Exception):
     """Исключение при попытке создать папку"""
+
+class ImageNotFoundServerError(Exception):
+    """Исключение при отсутствии озображений на сервере"""

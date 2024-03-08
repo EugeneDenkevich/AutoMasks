@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -6,7 +7,7 @@ from xml.etree.ElementTree import Element
 from PIL import Image
 from PIL import ImageDraw
 
-from app.backend.src.exceptions import ImageNotFound
+from app.backend.src.exceptions import ImageNotFoundError
 from app.backend.src.settings import settings
 
 
@@ -43,7 +44,7 @@ class Drawer:
         try:
             image_origin = Image.open(image_path).convert("RGBA")
         except Exception as e:
-            ImageNotFound(e)
+            ImageNotFoundError(e)
 
         # Создаём объект маски:
         mask = Image.new(mode="RGBA", size=image_origin.size)
@@ -60,7 +61,7 @@ class Drawer:
             try:
                 hex_color = self.__colors[label]
             except Exception as e:
-                print(
+                logging.info(
                     f"ERROR: {repr(e)}: not found such color using label: {label}"
                 )
                 continue
@@ -83,9 +84,12 @@ class Drawer:
                 image_path.parent
                 / f"{image_name[0:image_name.rfind('.')]}.png"
             )
-            print(image_res_file)
             res_image = Image.alpha_composite(image_origin, mask)
             res_image.save(image_res_file)
+
+        # Удаляем старое изображение, если это нужно:
+        if image_path != image_res_file:
+            os.remove(image_path)
 
     def remove_xml(self):
         """Удаляем файл annotations.xml"""
