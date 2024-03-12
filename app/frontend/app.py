@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from traceback import format_exc
 
 import flet as ft
 from dotenv import load_dotenv
@@ -44,6 +45,19 @@ def main_app(page: ft.Page):
     )
     list_id = ft.Row([list_id_text], alignment=ft.MainAxisAlignment.CENTER)
     help_text = ft.Text(visible=False, color=ft.colors.GREEN)
+    txt_error = ft.Text(
+        color=ft.colors.RED,
+        width=250,
+    )
+    error_presentation = ft.Column(
+        [
+            txt_error,
+        ],
+        width=300,
+        scroll=ft.ScrollMode.ALWAYS,
+        visible=False,
+        alignment=ft.MainAxisAlignment.CENTER,
+    )
 
     def open_folder(e):
         folder_path = (Path.cwd() / "result").resolve()
@@ -65,34 +79,38 @@ def main_app(page: ft.Page):
         help_text.visible = True
         page.update()
 
-    def hide_help_text(_type: str) -> None:
-        if _type == "canceled":
-            help_text.visible = False
+    def hide_help_text() -> None:
+        help_text.visible = False
+        page.update()
+        
+    def hide_error():
+        error_presentation.visible = False
         page.update()
 
     def cancel(e):
+        hide_error()
         if main_service.processing is False:
             return
         show_help_text("canceled")
-        page.update()
         main_service.cancel()
 
     def show_error(message: str):
         progress_bar.visible = False
         txt_error.value = message
-        txt_error.visible = True
-        hide_help_text("canceled")
+        error_presentation.height = 100 if len(txt_error.value) > 60 else None
+        error_presentation.visible = True
+        hide_help_text()
         page.update()
 
     def init_start():
         main_service.start()
         help_text.visible = False
-        txt_error.visible = False
+        hide_error()
         page.update()
 
     def shutdown_start():
-        if txt_error.visible == True:
-            txt_error.visible = False
+        if error_presentation.visible is True:
+            error_presentation.visible = False
         progress_bar.visible = False
         folder_button.disabled = False
         page.update()
@@ -115,7 +133,7 @@ def main_app(page: ft.Page):
                 type=type_radio_group.value,
                 transparency=str(slider.value),
             )
-        except RetryExceprion as e:
+        except RetryExceprion:
             show_error("Нет связи с сервером CVAT")
             return
         except NotZipFile:
@@ -142,9 +160,9 @@ def main_app(page: ft.Page):
         except ImageNotFoundServerError:
             show_error("Не найдены изображения на сервере CVAT")
             return
-        except Exception as e:
-            show_error("Произошла неизвестная ошибка")
-            raise Exception(e)
+        except Exception:
+            show_error(format_exc())
+            raise Exception()
         finally:
             main_service.stop()
         shutdown_start()
@@ -177,11 +195,6 @@ def main_app(page: ft.Page):
         width=350,
         divisions=10,
     )
-    txt_error = ft.Text(
-        visible=False,
-        color=ft.colors.RED,
-        width=250,
-    )
 
     page.add(
         ft.Row(
@@ -210,7 +223,7 @@ def main_app(page: ft.Page):
                                 ],
                             ),
                             list_id,
-                            txt_error,
+                            error_presentation,
                             ft.Text("Прозрачность маски:"),
                             ft.Row(
                                 [slider_label],
