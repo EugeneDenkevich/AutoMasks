@@ -15,6 +15,7 @@ from app.backend.src.exceptions import NotZipFile
 from app.backend.src.exceptions import ProcessWasStopped
 from app.backend.src.exceptions import RetryExceprion
 from app.backend.src.exceptions import ImageNotFoundError
+from app.backend.src.settings import settings
 from app.frontend.radio import type_radio_group
 from app.utils.main_service import main_service
 from app.utils.misc import open_depends_os
@@ -61,11 +62,9 @@ def main_app(page: ft.Page):
     )
 
     def open_folder(e):
-        # folder_path = (Path.cwd() / "result").resolve()
-        folder_path = Path(sys.argv[0]).parent
-        if not folder_path.exists():
-            os.mkdir(folder_path)
-        open_depends_os(str(folder_path))
+        if not settings.RESULT_PATH.exists():
+            os.mkdir(settings.RESULT_PATH)
+        open_depends_os(str(settings.RESULT_PATH))
 
     def show_help_text(_type: str) -> None:
         if _type == "canceled":

@@ -7,9 +7,7 @@ import sys
 @dataclass
 class Settings:
     API_URL = "https://cvat2.trainingdata.solutions/api"
-    # RESULT_PATH = Path(__file__).resolve() / "result"
-    # RESULT_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
-    RESULT_PATH = Path(sys.argv[0]).parent
+    RESULT_PATH = Path(sys.argv[0]).parent / "result"
     TRANSPARENCY: int = 100
 
 

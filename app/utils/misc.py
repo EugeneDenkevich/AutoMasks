@@ -1,16 +1,16 @@
 import os
+import platform
 
 from app.frontend.exceptions import CantOpenFileError
 
 
 def open_depends_os(path: str) -> None:
-    try:
-        os.startfile(path)  # Для Windows
-    except:
-        try:
-            os.system(f"open {path}")  # Для macOS
-        except:
-            try:
-                os.system(f"xdg-open {path}")  # Для Linux
-            except:
-                raise CantOpenFileError()
+    os_name = platform.system()
+    if os_name == "Windows":
+        os.startfile(path)
+    if os_name == "Darwin":
+        os.system(f"open {path}")
+    if os_name == "Linux":
+        os.system(f"xdg-open {path}")
+    else:
+        raise CantOpenFileError()
