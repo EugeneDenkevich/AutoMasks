@@ -176,7 +176,7 @@ def main_app(page: ft.Page):
     folder_button = ft.ElevatedButton(
         "Папка",
         width=btn_size,
-        disabled=True,
+        disabled=False,
         on_click=open_folder,
     )
     progress_bar = ft.ProgressBar(
