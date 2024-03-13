@@ -28,6 +28,8 @@ class MainService:
 
     def create_result_path(self):
         """Создаём папку \"results\" """
+        import logging
+        logging.info(f"\n\n{settings.RESULT_PATH}\n\n")
         if not settings.RESULT_PATH.exists():
             os.mkdir(settings.RESULT_PATH)
 
