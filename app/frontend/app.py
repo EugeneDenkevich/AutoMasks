@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from traceback import format_exc
+import sys
 
 import flet as ft
 from dotenv import load_dotenv
@@ -60,8 +61,8 @@ def main_app(page: ft.Page):
     )
 
     def open_folder(e):
-        folder_path = (Path.cwd() / "result").resolve()
-
+        # folder_path = (Path.cwd() / "result").resolve()
+        folder_path = Path(sys.argv[0]).parent
         if not folder_path.exists():
             os.mkdir(folder_path)
         open_depends_os(str(folder_path))
