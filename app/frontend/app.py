@@ -1,7 +1,5 @@
 import os
-from pathlib import Path
 from traceback import format_exc
-import sys
 
 import flet as ft
 from dotenv import load_dotenv
