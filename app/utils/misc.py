@@ -8,6 +8,7 @@ from app.frontend.exceptions import CantOpenFileError
 
 
 def open_depends_os(path: str) -> None:
+    path = get_result_path()
     os_name = platform.system()
     if os_name.lower() == "windows":
         os.startfile(path)
@@ -20,7 +21,7 @@ def open_depends_os(path: str) -> None:
         raise CantOpenFileError()
 
 
-def create_result_path() -> str:
+def get_result_path() -> str:
     """
     Создаёт папку 'result' и возвращает путь к ней.
     Существует, потому что существует macos.
