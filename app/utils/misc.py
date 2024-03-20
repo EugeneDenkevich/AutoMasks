@@ -9,11 +9,11 @@ from app.frontend.exceptions import CantOpenFileError
 
 def open_depends_os(path: str) -> None:
     os_name = platform.system()
-    if os_name == "Windows":
+    if os_name.lower() == "windows":
         os.startfile(path)
-    if os_name == "Darwin":
+    if os_name.lower() in ["darwin", "posix"]:
         os.system(f"open {path}")
-    if os_name == "Linux":
+    if os_name.lower() == "linux":
         os.system(f"xdg-open {path}")
     else:
         logging.error(f"Ошибка открытия директории: OS: {os.name}, PATH: {path}")
@@ -29,8 +29,8 @@ def create_result_path() -> str:
     """
     os_name = platform.system()
     if os_name == "Darwin":
-        result_path = "~/.automask/result/"
-        # result_path = Path("~/.automask/result/")
+        # result_path = "~/.automask/result/"
+        result_path = Path("~/.automask/result/")
     else:
         result_path = Path(sys.argv[0]).parent.resolve() / "result"
     if not Path(result_path).exists():
