@@ -156,7 +156,7 @@ def main_app(page: ft.Page):
             show_error("Ошибка при создании папки \"result\"")
             return
         except ImageNotFoundServerError:
-            show_error("Не найдены изображения на сервере CVAT")
+            show_error("Не найдены изображения на сервере CVAT.")
             return
         except Exception:
             show_error(format_exc())

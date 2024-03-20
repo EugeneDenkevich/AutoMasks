@@ -31,6 +31,7 @@ def get_result_path() -> Path:
     """
     created = False
     os_name = platform.system()
+    # TODO Сделать везде home вне зависимости от ОС
     if os_name == "Darwin":
         result_path = Path.home() / ".automask" / "result"
         if not result_path.exists():
