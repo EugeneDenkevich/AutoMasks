@@ -1,4 +1,5 @@
 import os
+import logging
 from pathlib import Path
 import platform
 import sys
@@ -15,6 +16,7 @@ def open_depends_os(path: str) -> None:
     if os_name == "Linux":
         os.system(f"xdg-open {path}")
     else:
+        logging.error(f"Ошибка открытия директории: OS: {os.name}, PATH: {path}")
         raise CantOpenFileError()
 
 
