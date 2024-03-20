@@ -1,4 +1,5 @@
 import os
+import logging
 from traceback import format_exc
 
 import flet as ft
@@ -18,6 +19,7 @@ from app.frontend.radio import type_radio_group
 from app.utils.main_service import main_service
 from app.utils.misc import open_depends_os
 
+logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
 login_value = os.environ.get("USER-NAME", "")
