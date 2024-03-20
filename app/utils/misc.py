@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 import platform
 import sys
+import subprocess
 
 from app.frontend.exceptions import CantOpenFileError
 
@@ -28,15 +29,17 @@ def get_result_path() -> str:
 
     :return: Путь к папке 'result'
     """
+    created = False
     os_name = platform.system()
     if os_name == "Darwin":
-        # result_path = "~/.automask/result/"
-        result_path = Path("~/automask123/result/")
+        result_path = "~/automask123/result/"
+        subprocess.run(['mkdir', '-p', result_path])
+        created = True
     else:
         result_path = Path(sys.argv[0]).parent.resolve() / "result"
-    print(result_path)
-    if not Path(result_path).exists():
-        os.makedirs(result_path)
-        print(f"Директория 'result' была создана: {result_path}")
+        if not result_path.exists():
+            os.makedirs(result_path)
+            created = True
+    if created:
         logging.info(f"Директория 'result' была создана: {result_path}")
     return str(result_path)
