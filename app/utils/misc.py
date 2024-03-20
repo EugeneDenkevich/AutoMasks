@@ -29,8 +29,8 @@ def create_result_path() -> str:
     """
     os_name = platform.system()
     if os_name == "Darwin":
-        # result_path = "~/.automask/result/"
-        result_path = Path("~/.automask/result/")
+        result_path = "~/.automask/result/"
+        # result_path = Path("~/.automask/result/")
     else:
         result_path = Path(sys.argv[0]).parent.resolve() / "result"
     if not Path(result_path).exists():
