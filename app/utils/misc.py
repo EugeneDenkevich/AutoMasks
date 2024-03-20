@@ -32,8 +32,8 @@ def get_result_path() -> str:
     created = False
     os_name = platform.system()
     if os_name == "Darwin":
-        result_path = "~/automask123/result/"
-        subprocess.run(['mkdir', '-p', result_path])
+        result_path = "~/.automask/result/"
+        os.system(f'mkdir -p {result_path}')
         created = True
     else:
         result_path = Path(sys.argv[0]).parent.resolve() / "result"
