@@ -1,13 +1,11 @@
 from dataclasses import dataclass
-from pathlib import Path
-import os
-import sys
+from app.utils.misc import create_result_path
 
 
 @dataclass
 class Settings:
-    API_URL = "https://cvat2.trainingdata.solutions/api"
-    RESULT_PATH = Path(sys.argv[0]).parent / "result"
+    API_URL: str = "https://cvat2.trainingdata.solutions/api"
+    RESULT_PATH: str = create_result_path()
     TRANSPARENCY: int = 100
 
 

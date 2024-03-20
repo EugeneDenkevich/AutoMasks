@@ -60,9 +60,7 @@ def main_app(page: ft.Page):
     )
 
     def open_folder(e):
-        if not settings.RESULT_PATH.exists():
-            os.mkdir(settings.RESULT_PATH)
-        open_depends_os(str(settings.RESULT_PATH))
+        open_depends_os(settings.RESULT_PATH)
 
     def show_help_text(_type: str) -> None:
         if _type == "canceled":
@@ -259,9 +257,6 @@ def main_app(page: ft.Page):
                                     ft.Row(
                                         [
                                             start_button,
-                                            # TODO Обработать ситуацию, когда
-                                            #      пользователь нажал на "Отмена",
-                                            #      когда процесс не запущен.
                                             cancel_button,
                                             folder_button,
                                         ],

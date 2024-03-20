@@ -32,9 +32,6 @@ def main(
     # Устанавливаем прозрачность:
     settings.TRANSPARENCY = input.transparency
 
-    # Создаём директорию result:
-    main_service.create_result_path()
-
     # Входим в систему CVAT.
     session.auth = (input.username, input.password)
 

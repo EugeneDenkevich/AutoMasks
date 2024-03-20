@@ -26,10 +26,5 @@ class MainService:
         """Останавливаем обработку данных"""
         self.processing = False
 
-    def create_result_path(self):
-        """Создаём папку \"results\" """
-        if not settings.RESULT_PATH.exists():
-            os.mkdir(settings.RESULT_PATH)
-
 
 main_service = MainService()
