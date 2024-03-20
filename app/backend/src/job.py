@@ -1,7 +1,5 @@
 import os
-import platform
 import shutil
-import sys
 import logging
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -30,24 +28,11 @@ class Job:
 
     def create_path(self):
         """Создание директории для job"""
-        created = False
-        os_name = platform.system()
-        if os_name == "Darwin":
-            result_path = f"~/.automask/result/{self.job_id}"
-            os.system(f'rm -r {result_path}')
-            os.system(f'mkdir -p {result_path}')
-            created = True
-        else:
-            self.job_path = Path(settings.RESULT_PATH) / str(self.job_id)
-            if self.job_path.exists():
-                shutil.rmtree(self.job_path)
-            os.mkdir(self.job_path)
-            result_path = Path(sys.argv[0]).parent.resolve() / "result"
-            if not result_path.exists():
-                os.makedirs(result_path)
-                created = True
-        if created:
-            logging.info(f"Директория 'result' была создана: {result_path}")
+
+        self.job_path = settings.RESULT_PATH / str(self.job_id)
+        if self.job_path.exists():
+            shutil.rmtree(self.job_path)
+        os.mkdir(self.job_path)
 
     @retry(
         stop=stop_after_attempt(30),
