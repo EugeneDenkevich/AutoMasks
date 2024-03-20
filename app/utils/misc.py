@@ -11,7 +11,7 @@ def open_depends_os(path: str) -> None:
     os_name = platform.system()
     if os_name.lower() == "windows":
         os.startfile(path)
-    if os_name.lower() in ["darwin", "posix"]:
+    if os_name.lower() == "darwin":
         os.system(f"open {path}")
     if os_name.lower() == "linux":
         os.system(f"xdg-open {path}")
