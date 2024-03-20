@@ -35,4 +35,5 @@ def create_result_path() -> str:
         result_path = Path(sys.argv[0]).parent.resolve() / "result"
     if not Path(result_path).exists():
         os.makedirs(result_path)
+    logging.info(f"Директория 'result' была создана: {result_path}")
     return str(result_path)
