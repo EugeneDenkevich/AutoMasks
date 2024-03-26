@@ -87,9 +87,9 @@ class Drawer:
             res_image = Image.alpha_composite(image_origin, mask)
             res_image.save(image_res_file)
 
-        # Удаляем старое изображение, если это нужно:
-        if image_path != image_res_file:
-            os.remove(image_path)
+            # Удаляем старое изображение, если это нужно:
+            if image_path != image_res_file:
+                os.remove(image_path)
 
     def remove_xml(self):
         """Удаляем файл annotations.xml"""

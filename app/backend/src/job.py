@@ -1,6 +1,7 @@
+from httpx import ReadTimeout
+from typing import final
 import os
 import shutil
-import logging
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from zipfile import BadZipFile
@@ -13,10 +14,13 @@ from tenacity import stop_after_attempt
 from app.backend.src.exceptions import NotZipFile
 from app.backend.src.exceptions import RetryExceprion
 from app.backend.src.exceptions import ImageNotFoundServerError
+from app.backend.src.exceptions import NotAuthorizedError
+from app.backend.src.exceptions import ClientConnectionError
 from app.backend.src.session import session
 from app.backend.src.settings import settings
 
 
+@final
 class Job:
     """Класс сущности job"""
 
@@ -43,14 +47,16 @@ class Job:
         Скачать аннотации сущности job
         :return: Путь к аннотациями
         """
-
-        annotations = session.get(
+        response = session.get(
             url=f"{settings.API_URL}/jobs/{self.job_id}/annotations",
             params={
                 "action": "download",
                 "format": "CVAT for images 1.1",
             },
-        ).content
+        )
+        if response.status_code == 401:
+            raise NotAuthorizedError()
+        annotations = response.content
         if not annotations:
             raise RetryExceprion()
         path_zip = self.job_path / "annotations.zip"
@@ -71,15 +77,19 @@ class Job:
     )
     def download_image(self, image: dict):
         """Скачать изображение"""
-
         for frame, image_name in image.items():
-            image_response = session.get(
-                url=f"{settings.API_URL}/jobs/{self.job_id}/data",
-                params={
-                    "type": "frame",
-                    "number": frame,
-                },
-            )
+            try:
+                image_response = session.get(
+                    url=f"{settings.API_URL}/jobs/{self.job_id}/data",
+                    params={
+                        "type": "frame",
+                        "number": frame,
+                    },
+                )
+            except ReadTimeout:
+                raise ClientConnectionError()
+            if image_response.status_code == 401:
+                raise NotAuthorizedError()
             if image_response.status_code == 500:
                 raise ImageNotFoundServerError()
             img_path = self.job_path / image_name
@@ -92,7 +102,6 @@ class Job:
     )
     def get_images(self) -> list[dict]:
         """Получение словаря с id и именами изображений сущности job"""
-
         tree = ET.parse(self.job_path / "annotations.xml")
         start_frame = int(tree.getroot().find("./meta/job/start_frame").text)
         stop_frame = int(tree.getroot().find("./meta/job/stop_frame").text)

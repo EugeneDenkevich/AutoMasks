@@ -25,5 +25,17 @@ class InvalidIdError(Exception):
 class CantCreateFolderError(Exception):
     """Исключение при попытке создать папку"""
 
+
 class ImageNotFoundServerError(Exception):
     """Исключение при отсутствии озображений на сервере"""
+
+
+class TaskNotFoundError(Exception):
+    """Исключение при отсутствии указанной таски"""
+
+
+class NotAuthorizedError(Exception):
+    """Исключение при неверном логине и пароле"""
+
+class ClientConnectionError(Exception):
+    """Исключение при плохом соединении"""

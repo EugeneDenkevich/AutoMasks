@@ -1,4 +1,3 @@
-import os
 import logging
 from traceback import format_exc
 
@@ -14,16 +13,22 @@ from app.backend.src.exceptions import NotZipFile
 from app.backend.src.exceptions import ProcessWasStopped
 from app.backend.src.exceptions import RetryExceprion
 from app.backend.src.exceptions import ImageNotFoundError
+from app.backend.src.exceptions import TaskNotFoundError
+from app.backend.src.exceptions import NotAuthorizedError
+from app.backend.src.exceptions import ClientConnectionError
 from app.backend.src.settings import settings
 from app.frontend.radio import type_radio_group
 from app.utils.main_service import main_service
 from app.utils.misc import open_depends_os
+from app.backend.src.gateways.db import db_sqlite
+
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
-login_value = os.environ.get("USER-NAME", "")
-password_value = os.environ.get("PASS-WORD", "")
+
+login_value = db_sqlite.get_login()
+password_value = db_sqlite.get_password()
 
 
 def main_app(page: ft.Page):
@@ -131,6 +136,9 @@ def main_app(page: ft.Page):
                 type=type_radio_group.value,
                 transparency=str(slider.value),
             )
+        except NotAuthorizedError:
+            show_error("Неверные логин и пароль")
+            return
         except RetryExceprion:
             show_error("Нет связи с сервером CVAT")
             return
@@ -157,6 +165,12 @@ def main_app(page: ft.Page):
             return
         except ImageNotFoundServerError:
             show_error("Не найдены изображения на сервере CVAT.")
+            return
+        except TaskNotFoundError:
+            show_error("Таски не найдены.")
+            return
+        except ClientConnectionError:
+            show_error("Проверьте соединение с интернетом.")
             return
         except Exception:
             show_error(format_exc())

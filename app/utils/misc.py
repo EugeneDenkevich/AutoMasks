@@ -2,8 +2,6 @@ import os
 import logging
 from pathlib import Path
 import platform
-import sys
-import subprocess
 
 from app.frontend.exceptions import CantOpenFileError
 
@@ -13,9 +11,9 @@ def open_depends_os(path: str) -> None:
     os_name = platform.system()
     if os_name.lower() == "windows":
         os.startfile(path)
-    if os_name.lower() == "darwin":
+    elif os_name.lower() == "darwin":
         os.system(f"open {path}")
-    if os_name.lower() == "linux":
+    elif os_name.lower() == "linux":
         os.system(f"xdg-open {path}")
     else:
         logging.error(f"Ошибка открытия директории: OS: {os_name}, PATH: {path}")
@@ -24,25 +22,23 @@ def open_depends_os(path: str) -> None:
 
 def get_result_path() -> Path:
     """
-    Создаёт папку 'result' и возвращает путь к ней.
-    Существует, потому что существует macos.
+    Возвращает путь к папке 'result'.
+    Если её нет - создаёт её в домашней директории пользователя.
 
-    :return: Путь к папке 'result'
+    :return: Путь к папке 'result'.
     """
-    created = False
-    os_name = platform.system()
-    # TODO Сделать везде home вне зависимости от ОС
-    if os_name == "Darwin":
-        result_path = Path.home() / ".automask" / "result"
-        if not result_path.exists():
-            os.makedirs(result_path)
-            created = True
-        # os.system(f'mkdir -p {result_path}')
-    else:
-        result_path = Path(sys.argv[0]).parent.resolve() / "result"
-        if not result_path.exists():
-            os.makedirs(result_path)
-            created = True
-    if created:
+    result_path = Path.home() / ".automask" / "result"
+    if not result_path.exists():
+        os.makedirs(result_path)
         logging.info(f"Директория 'result' была создана: {result_path}")
     return result_path
+
+
+def get_db_path() -> str:
+    """
+    Возвращает путь к файлу sqlite базщы данных.
+
+    :return: Путь к файлу sqlite базщы данных.
+    """
+    db_path = Path.home() / ".automask" / "mask.db"
+    return db_path

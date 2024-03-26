@@ -1,14 +1,11 @@
-import os
 from dataclasses import dataclass
 from typing import final
-
-from app.backend.src.settings import settings
 
 
 @final
 @dataclass
 class MainService:
-    """Класс для всгпомогательных операций"""
+    """Класс для вспомогательных операций"""
 
     over: bool = False
     processing: bool = False

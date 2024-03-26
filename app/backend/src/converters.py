@@ -21,5 +21,5 @@ def row_data_to_dto(
         password=password,
         id_list=finished_id_list,
         type=type,
-        transparency=int(2.55 * int(transparency)),
+        transparency=int(2.55 * int(float(transparency))),
     )

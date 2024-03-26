@@ -1,4 +1,5 @@
 from typing import Optional
+from httpx import BasicAuth
 
 from app.backend.src.converters import row_data_to_dto
 from app.backend.src.enums import TypeEnum
@@ -8,7 +9,7 @@ from app.backend.src.handlers import handle_task
 from app.backend.src.schemas import InputDTO
 from app.backend.src.session import session
 from app.backend.src.settings import settings
-from app.utils.main_service import main_service
+from app.backend.src.gateways.db import db_sqlite
 
 
 def main(
@@ -33,7 +34,16 @@ def main(
     settings.TRANSPARENCY = input.transparency
 
     # Входим в систему CVAT.
-    session.auth = (input.username, input.password)
+    session.auth = (
+        BasicAuth(
+            username=input.username,
+            password=input.password,
+        )
+    )
+    db_sqlite.save_credentials(
+        input.username,
+        input.password,
+    )
 
     # Обрабатываем данные по типу сущности.
     if input.type == TypeEnum.JOBS:
