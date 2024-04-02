@@ -1,0 +1,29 @@
+version: '3'
+
+output: 'prefixed'
+
+tasks:
+  format:
+    cmds:
+      - poetry run black .
+      - poetry run isort .
+    desc: Format the code using "black" and "isort"
+
+  run:
+    cmds:
+      - poetry run flet app
+    desc: Run the app
+
+  reload:
+    cmds:
+      - task: format
+      - task: run
+    desc: Format code and run the app
+
+  push:
+    cmds:
+      - GIT_SSL_NO_VERIFY=true git push origin dev
+
+  build:
+    cmds:
+      - poetry run flet pack app/main.py
