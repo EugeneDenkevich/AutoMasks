@@ -44,7 +44,7 @@ def main_app(page: ft.Page):
     username_text = ft.TextField(label="Логин", width=300, value=login_value)
     username = ft.Row([username_text], alignment=ft.MainAxisAlignment.CENTER)
     password_text = ft.TextField(
-        label="Пароль", width=300, value=password_value
+        label="Пароль", width=300, value=password_value, can_reveal_password=True, password=True,
     )
     password = ft.Row([password_text], alignment=ft.MainAxisAlignment.CENTER)
     list_id_text = ft.TextField(
