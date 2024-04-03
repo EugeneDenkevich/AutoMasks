@@ -6,10 +6,12 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 from zipfile import BadZipFile
 from zipfile import ZipFile
+from io import BytesIO
 
 from tenacity import retry
 from tenacity import retry_if_exception_type
 from tenacity import stop_after_attempt
+from PIL import Image
 
 from app.backend.src.exceptions import NotZipFile
 from app.backend.src.exceptions import RetryExceprion
@@ -96,7 +98,9 @@ class Job:
                 raise ImageNotFoundServerError()
             img_path = self.job_path / image_name
             with open(img_path, "wb") as f:
-                f.write(image_response.content)
+                file = BytesIO(image_response.content)
+                img = Image.open(file)
+                img.save(self.job_path / image_name)
 
     @retry(
         stop=stop_after_attempt(30),
