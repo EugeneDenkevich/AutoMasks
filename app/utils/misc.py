@@ -18,16 +18,30 @@ def open_depends_os(path: str) -> None:
     else:
         logging.error(f"Ошибка открытия директории: OS: {os_name}, PATH: {path}")
         raise CantOpenFileError()
+    
+
+def get_automask_path() -> Path:
+    """
+    Возвращает путь к папке .automask в домашней директории пользователя.
+    Если её нет - создаёт её.
+    
+    :return: Путь к папке '.auromask'.
+    """
+    automask_path = Path.home() / ".automask"
+    if not automask_path.exists():
+        os.makedirs(automask_path)
+        logging.info(f"Директория 'result' была создана: {automask_path}")
+    return automask_path
 
 
 def get_result_path() -> Path:
     """
     Возвращает путь к папке 'result'.
-    Если её нет - создаёт её в домашней директории пользователя.
+    Если её нет - создаёт её.
 
     :return: Путь к папке 'result'.
     """
-    result_path = Path.home() / ".automask" / "result"
+    result_path = get_automask_path() / "result"
     if not result_path.exists():
         os.makedirs(result_path)
         logging.info(f"Директория 'result' была создана: {result_path}")
@@ -40,5 +54,15 @@ def get_db_path() -> str:
 
     :return: Путь к файлу sqlite базщы данных.
     """
-    db_path = Path.home() / ".automask" / "mask.db"
+    db_path = get_automask_path() / "mask.db"
+    return db_path
+
+
+def get_log_path() -> str:
+    """
+    Возвращает путь к файлу логов.
+
+    :return: Путь к файлу логов.
+    """
+    db_path = get_automask_path() / "log.txt"
     return db_path

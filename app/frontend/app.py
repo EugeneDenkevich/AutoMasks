@@ -1,8 +1,6 @@
-import logging
 from traceback import format_exc
 
 import flet as ft
-from dotenv import load_dotenv
 
 from app.backend.main import main as backend_main
 from app.backend.src.exceptions import CantCreateFolderError
@@ -21,10 +19,6 @@ from app.frontend.radio import type_radio_group
 from app.utils.main_service import main_service
 from app.utils.misc import open_depends_os
 from app.backend.src.gateways.db import db_sqlite
-
-
-logging.basicConfig(level=logging.INFO)
-load_dotenv()
 
 
 login_value = db_sqlite.get_login()
