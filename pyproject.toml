@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "automask"
+version = "0.1.0"
+description = ""
+authors = ["Eugene Denkevich <eugenestudio@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+pip = "^23.3.2"
+install = "^1.3.5"
+flet = "0.21.2"
+tenacity = "8.2.3"
+pillow = "10.2.0"
+python-dotenv = "1.0.1"
+black = "23.12.1"
+isort = "5.13.2"
+pydantic = "^2.6.1"
+pyinstaller = "^6.5.0"
+httpx = "^0.27.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
+target-version = ["py311"]
+include = '^.+\.pyi?$'
+extend-exclude = '''
+(
+    .*\.local.*
+    | .*\.idea.*
+    | .*\.vscode.*
+    | .*\.git.*
+    | .*migrations*
+)
+'''
+
+[tool.isort]
+force_single_line = true
+line_length = 79
+multi_line_output = 3
+profile = "black"
+skip = [".local"]

@@ -1,0 +1,6 @@
+.draft
+.local/
+__pycache__/
+.env
+result/
+error_log.txt
