@@ -18,6 +18,7 @@ def main(
     id_list: Optional[str] = None,
     type: Optional[str] = None,
     transparency: Optional[str] = None,
+    **kwargs,
 ) -> None:
     """Главная функция бэкенда"""
 
@@ -48,10 +49,10 @@ def main(
     # Обрабатываем данные по типу сущности.
     if input.type == TypeEnum.JOBS:
         for id_job in input.id_list:
-            handle_job(id_job)
+            handle_job(id_job, **kwargs)
     if input.type == TypeEnum.TASKS:
         for id_task in input.id_list:
-            handle_task(id_task)
+            handle_task(id_task, **kwargs)
     if input.type == TypeEnum.PROJECTS:
         for id_project in input.id_list:
-            handle_project(id_project)
+            handle_project(id_project, **kwargs)

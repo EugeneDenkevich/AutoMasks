@@ -121,6 +121,7 @@ def main_app(page: ft.Page):
             return
         init_start()
         try:
+            progress_bar.value = 0
             progress_bar.visible = True
             page.update()
             backend_main(
@@ -129,6 +130,7 @@ def main_app(page: ft.Page):
                 id_list=list_id_text.value,
                 type=type_radio_group.value,
                 transparency=str(slider.value),
+                progress_bar=progress_bar,
             )
         except NotAuthorizedError:
             show_error("Неверные логин и пароль")

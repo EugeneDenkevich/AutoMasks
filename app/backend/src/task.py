@@ -1,9 +1,13 @@
 from typing import final
 import shutil
 import os
+from xml.etree import ElementTree as ET
 from tenacity import retry
 from tenacity import retry_if_exception_type
 from tenacity import stop_after_attempt
+from zipfile import ZipFile
+from zipfile import BadZipFile
+from app.backend.src.exceptions import NotZipFile
 
 from app.backend.src.exceptions import RetryExceprion
 from app.backend.src.exceptions import TaskNotFoundError
@@ -57,3 +61,41 @@ class Task:
         if self.path.exists():
             shutil.rmtree(self.path)
         os.mkdir(self.path)
+
+    @retry(
+        stop=stop_after_attempt(30),
+        retry=retry_if_exception_type(RetryExceprion),
+    )
+    def get_image_count(self) -> int:
+        """
+        Получение количества всех картинок в таске.
+        :return: Кол-во картинок в таске.
+        """
+        response = session.get(
+            url=f"{settings.API_URL}/tasks/{self.task_id}/annotations",
+            params={
+                "action": "download",
+                "format": "CVAT for images 1.1",
+            },
+        )
+        if response.status_code == 401:
+            raise NotAuthorizedError()
+        annotations = response.content
+        if not annotations:
+            raise RetryExceprion()
+        path_zip = self.path / "annotations.zip"
+        with open(path_zip, "wb") as f:
+            f.write(annotations)
+        try:
+            with ZipFile(path_zip, "r") as f:
+                f.extractall(self.path)
+        except BadZipFile as e:
+            raise NotZipFile(e)
+        tree = ET.parse(self.path / "annotations.xml")
+        images = tree.getroot().findall(".//image")
+        if path_zip.exists():
+            os.remove(path_zip)
+        annotations_xml = self.path / "annotations.xml"
+        if annotations_xml.exists():
+            os.remove(annotations_xml)
+        return len(images)
