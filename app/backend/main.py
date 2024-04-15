@@ -10,6 +10,7 @@ from app.backend.src.schemas import InputDTO
 from app.backend.src.session import session
 from app.backend.src.settings import settings
 from app.backend.src.gateways.db import db_sqlite
+from app.backend.src.downloader import downloader
 
 
 def main(
@@ -48,11 +49,25 @@ def main(
 
     # Обрабатываем данные по типу сущности.
     if input.type == TypeEnum.JOBS:
+        image_count = len(downloader.get_images(input.id_list, TypeEnum.JOBS))
+        pb_value = 0
         for id_job in input.id_list:
-            handle_job(id_job, **kwargs)
+            pb_value = handle_job(
+                id_job,
+                image_count=image_count,
+                pb_value=pb_value,
+                **kwargs
+            )
     if input.type == TypeEnum.TASKS:
+        image_count = len(downloader.get_images(input.id_list, TypeEnum.TASKS))
+        pb_value = 0
         for id_task in input.id_list:
-            handle_task(id_task, **kwargs)
+            pb_value = handle_task(
+                id_task,
+                image_count=image_count,
+                pb_value=pb_value,
+                **kwargs,
+            )
     if input.type == TypeEnum.PROJECTS:
         for id_project in input.id_list:
             handle_project(id_project, **kwargs)

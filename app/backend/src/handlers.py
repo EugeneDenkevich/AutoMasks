@@ -31,10 +31,7 @@ def handle_job(job_id: int, **kwargs) -> OptionalNumber | Any:
 
     # Обрабатываем изображения:
     for image in images:
-        if image_count:
-            progress_bar.value += 1 / image_count
-        else:
-            progress_bar.value += 1 / len(images)
+        progress_bar.value += 1 / image_count
         progress_bar.update()
         if main_service.over is False:
             job.download_image(image)
@@ -48,16 +45,13 @@ def handle_task(task_id: int, **kwargs):
     """Обработка сущности task"""
     task = Task(task_id)
     task.create_path()
-    image_count = task.get_image_count()
-    pb_value = 0
     for job_id in task.jobs_id:
         pb_value = handle_job(
             job_id,
             different_path=task.path, # Добавляем путь к task.
-            image_count=image_count, # Кол-во изображений для прогрессбара.
-            pb_value = pb_value, # Прокидываем новое значение прогрессбара.
             **kwargs
         )
+    return pb_value
 
 
 def handle_project(project_id: int, **kwargs):
